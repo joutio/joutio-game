@@ -1,3 +1,10 @@
+## 1.0.0 (2026-10-27)
+
+### Features
+
+* release Joutio game 1.0.0 ([2b3c3ee](https://github.com/joutio/joutio-game/commit/2b3c3eefa7d60a1b2ec0206a3c8742365795a1d1))
+* release Joutio game 1.0.0 ([1015d2d](https://github.com/joutio/joutio-game/commit/1015d2dd46c1d2417483ea44e7df3decaf88186a))
+
 ## [9.0.0](https://github.com/joutio/joutio-game/compare/v8.7.2...v9.0.0) (2026-10-23)
 
 ### ⚠ BREAKING CHANGES

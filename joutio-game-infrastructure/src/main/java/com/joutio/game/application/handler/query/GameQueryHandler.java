@@ -1,0 +1,105 @@
+package com.joutio.game.application.handler.query;
+
+import com.joutio.microservice.core.domain.model.notification.EventEnvelope;
+import com.joutio.microservice.core.infrastructure.in.api.response.SearchResponse;
+import com.joutio.game.domain.exception.GameExceptions;
+import com.joutio.game.domain.model.Game;
+import com.joutio.game.domain.model.GameHistorySort;
+import com.joutio.game.domain.model.GameResult;
+import com.joutio.game.domain.model.PlayerGamesPage;
+import com.joutio.game.domain.model.TopicPopularity;
+import com.joutio.game.domain.port.out.GameEventStorePort;
+import com.joutio.game.domain.port.out.GameRepositoryPort;
+import com.joutio.game.domain.query.GameQuery;
+import org.axonframework.queryhandling.QueryHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
+
+import java.util.List;
+import java.util.Optional;
+
+/**
+ * GameQueryHandler — Répond aux queries en s'appuyant sur les ports sortants.
+ */
+@Component
+public class GameQueryHandler {
+
+    private static final Logger logger = LoggerFactory.getLogger(GameQueryHandler.class);
+
+    private final GameRepositoryPort gameRepositoryPort;
+    private final GameEventStorePort gameEventStorePort;
+
+    public GameQueryHandler(GameRepositoryPort gameRepositoryPort,
+                            GameEventStorePort gameEventStorePort) {
+        this.gameRepositoryPort = gameRepositoryPort;
+        this.gameEventStorePort = gameEventStorePort;
+    }
+
+    @QueryHandler
+    public Game handle(GameQuery.GetGameByIdQuery query) {
+        logger.debug("Handling GetGameByIdQuery: gameId={}", query.gameId());
+        return gameRepositoryPort.findById(query.gameId())
+                .orElseThrow(() -> new GameExceptions.GameNotFoundProblem(query.gameId()));
+    }
+
+    @QueryHandler
+    public List<Game> handle(GameQuery.GetActiveGamesQuery query) {
+        logger.debug("Handling GetActiveGamesQuery: playerId={}", query.playerId());
+        return gameRepositoryPort.findInProgressGamesByPlayerId(query.playerId());
+    }
+
+    @QueryHandler
+    public List<EventEnvelope> handle(GameQuery.GetGameEventsQuery query) {
+        logger.debug("Handling GetGameEventsQuery: gameId={}", query.gameId());
+        return gameEventStorePort.findEventEnvelopesByGameId(query.gameId());
+    }
+
+    @QueryHandler
+    public SearchResponse<Game> handle(GameQuery.SearchGameQuery query) {
+        return gameRepositoryPort.findAll(query.request());
+    }
+
+    @QueryHandler
+    public PlayerGamesPage handle(GameQuery.GetPlayerGamesQuery query) {
+        logger.debug("Handling GetPlayerGamesQuery: playerId={}, topicId={}, outcome={}, sort={}",
+                query.playerId(), query.topicId(), query.outcome(), query.sort());
+        return gameRepositoryPort.findPlayerGames(
+                query.playerId(),
+                query.topicId(),
+                query.opponentId(),
+                query.opponentType(),
+                query.outcome(),
+                query.sort() == null ? GameHistorySort.RECENT : query.sort(),
+                query.page(),
+                query.size());
+    }
+
+    @QueryHandler
+    public List<TopicPopularity> handle(GameQuery.GetPopularTopicsQuery query) {
+        logger.debug("Handling GetPopularTopicsQuery: since={}, limit={}", query.since(), query.limit());
+        return gameRepositoryPort.findPopularTopics(query.since(), query.limit());
+    }
+
+    @QueryHandler
+    public GameResult handle(GameQuery.GetGameResultQuery query) {
+        logger.debug("Handling GetGameResultQuery: gameId={}, playerId={}", query.gameId(), query.playerId());
+        return gameRepositoryPort.findById(query.gameId())
+                .map(game -> GameResult.from(game, query.playerId()))
+                .orElseThrow(() -> new GameExceptions.GameNotFoundProblem(query.gameId()));
+    }
+
+    @QueryHandler
+    public int handle(GameQuery.GetTopicCompletionQuery query) {
+        logger.debug("Handling GetTopicCompletionQuery: playerId={}, topicId={}",
+                query.playerId(), query.topicId());
+        return gameRepositoryPort.countAnsweredQuestions(query.playerId(), query.topicId());
+    }
+
+    @QueryHandler
+    public List<String> handle(GameQuery.GetPlayedQuestionIdsQuery query) {
+        logger.debug("Handling GetPlayedQuestionIdsQuery: topicId={}, players={}",
+                query.topicId(), query.playerIds().size());
+        return gameRepositoryPort.findPlayedQuestionIds(query.topicId(), query.playerIds());
+    }
+}

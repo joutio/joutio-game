@@ -1,0 +1,53 @@
+package com.joutio.game.infrastructure.out.messaging.adapter;
+
+import com.joutio.game.domain.event.GameEvent;
+import com.joutio.game.domain.port.out.GameEventStorePort;
+import com.joutio.microservice.core.domain.model.notification.EventEnvelope;
+import org.axonframework.eventhandling.DomainEventMessage;
+import org.axonframework.eventsourcing.eventstore.DomainEventStream;
+import org.axonframework.eventsourcing.eventstore.EventStore;
+import org.springframework.stereotype.Component;
+
+import java.util.ArrayList;
+import java.util.List;
+
+@Component
+public class GameEventStoreAdapter implements GameEventStorePort {
+
+    private final EventStore eventStore;
+
+    public GameEventStoreAdapter(EventStore eventStore) {
+        this.eventStore = eventStore;
+    }
+
+    @Override
+    public List<GameEvent> findEventsByGameId(String gameId) {
+        List<GameEvent> events = new ArrayList<>();
+        DomainEventStream eventStream = eventStore.readEvents(gameId);
+        while (eventStream.hasNext()) {
+            Object payload = eventStream.next().getPayload();
+            if (payload instanceof GameEvent gameEvent) {
+                events.add(gameEvent);
+            }
+        }
+        return events;
+    }
+
+    @Override
+    public List<EventEnvelope> findEventEnvelopesByGameId(String gameId) {
+        List<EventEnvelope> envelopes = new ArrayList<>();
+        DomainEventStream eventStream = eventStore.readEvents(gameId);
+        while (eventStream.hasNext()) {
+            DomainEventMessage<?> message = eventStream.next();
+            if (message.getPayload() instanceof GameEvent gameEvent) {
+                envelopes.add(EventEnvelope.of(
+                        message.getAggregateIdentifier(),
+                        message.getSequenceNumber(),
+                        message.getTimestamp(),
+                        gameEvent
+                ));
+            }
+        }
+        return envelopes;
+    }
+}

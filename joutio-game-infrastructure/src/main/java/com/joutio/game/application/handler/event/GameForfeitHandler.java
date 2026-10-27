@@ -1,0 +1,43 @@
+package com.joutio.game.application.handler.event;
+
+import com.joutio.game.domain.command.GameCommand;
+import com.joutio.game.domain.port.out.GameRepositoryPort;
+import com.joutio.profile.domain.event.PresenceEvent;
+import org.axonframework.commandhandling.gateway.CommandGateway;
+import org.axonframework.config.ProcessingGroup;
+import org.axonframework.eventhandling.EventHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
+
+/**
+ * Forfait sur déconnexion : lorsqu'un joueur passe hors ligne (présence, service profile),
+ * son duel synchrone humain en cours est clôturé à son détriment — l'adversaire gagne.
+ *
+ * <p>Les duels contre bot sont ignorés : {@code findActiveHumanGameByPlayerId} ne remonte que
+ * les parties en cours opposant deux humains.
+ */
+@Component
+@ProcessingGroup("game-forfeit-handler")
+public class GameForfeitHandler {
+
+    private static final Logger logger = LoggerFactory.getLogger(GameForfeitHandler.class);
+
+    private final GameRepositoryPort gameRepositoryPort;
+    private final CommandGateway commandGateway;
+
+    public GameForfeitHandler(GameRepositoryPort gameRepositoryPort, CommandGateway commandGateway) {
+        this.gameRepositoryPort = gameRepositoryPort;
+        this.commandGateway = commandGateway;
+    }
+
+    @EventHandler
+    public void on(PresenceEvent.PlayerWentOfflineEvent event) {
+        gameRepositoryPort.findActiveHumanGameByPlayerId(event.userId())
+                .ifPresent(game -> {
+                    logger.info("Forfeiting game {}: player {} went offline",
+                            game.gameId(), event.userId());
+                    commandGateway.send(new GameCommand.ForfeitGameCommand(game.gameId(), event.userId()));
+                });
+    }
+}

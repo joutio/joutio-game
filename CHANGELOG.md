@@ -1,0 +1,327 @@
+## [9.0.0](https://github.com/joutio/joutio-game/compare/v8.7.2...v9.0.0) (2026-10-23)
+
+### ⚠ BREAKING CHANGES
+
+* **game:** limite le snapshot de partie à l'Elo
+
+### Code Refactoring
+
+* **game:** limite le snapshot de partie à l'Elo ([3523f9d](https://github.com/joutio/joutio-game/commit/3523f9d21b28353eeb6333cdfde1292d82f4232e))
+
+## [8.7.2](https://github.com/joutio/joutio-game/compare/v8.7.1...v8.7.2) (2026-10-22)
+
+### Bug Fixes
+
+* **game:** fige l'Elo des joueurs à la création de la partie ([be5df93](https://github.com/joutio/joutio-game/commit/be5df93124772e0b17b787901937686583a1aefe))
+
+## [8.7.1](https://github.com/joutio/joutio-game/compare/v8.7.0...v8.7.1) (2026-10-22)
+
+### Bug Fixes
+
+* aligne les contrats inter-services sur les releases disponibles ([6ea0516](https://github.com/joutio/joutio-game/commit/6ea0516c7b340f571d09b8f7d035a75f9e5f573f))
+
+## [8.7.0](https://github.com/joutio/joutio-game/compare/v8.6.0...v8.7.0) (2026-10-22)
+
+### Features
+
+* **account:** annule les parties actives et anonymise les joueurs supprimés ([6c40ca7](https://github.com/joutio/joutio-game/commit/6c40ca73df7620bfbe63f2b29e86837a335d1d10))
+
+## [8.6.0](https://github.com/joutio/joutio-game/compare/v8.5.0...v8.6.0) (2026-10-16)
+
+### Features
+
+* **game:** historique d'un joueur filtrable et triable ([3238436](https://github.com/joutio/joutio-game/commit/3238436d943623e89c0f069effeb2223981187b7))
+
+## [8.5.0](https://github.com/joutio/joutio-game/compare/v8.4.2...v8.5.0) (2026-10-15)
+
+### Features
+
+* **game:** compteurs de bonnes reponses sur questions illustrees ([42d9d8c](https://github.com/joutio/joutio-game/commit/42d9d8ce2f6b6a2e0be19e5b4d5a9dba6b2d21e4))
+
+## [8.4.2](https://github.com/joutio/joutio-game/compare/v8.4.1...v8.4.2) (2026-10-12)
+
+### Bug Fixes
+
+* **game:** SDK joutio-parent 4.7.1 (cycle de beans Configuration/bus distribué au démarrage) ([833d799](https://github.com/joutio/joutio-game/commit/833d79980e53fab2fcc6dd4468e70f4a5d75be38))
+
+## [8.4.1](https://github.com/joutio/joutio-game/compare/v8.4.0...v8.4.1) (2026-10-12)
+
+### Bug Fixes
+
+* **game:** contrat profile-domain 3.4.0 (3.0.0 élagué de GitHub Packages) ([59128a7](https://github.com/joutio/joutio-game/commit/59128a745b53d5f2d75d1c8dee48da9aba74f208))
+
+## [8.4.0](https://github.com/joutio/joutio-game/compare/v8.3.0...v8.4.0) (2026-10-12)
+
+### Features
+
+* **console:** consume joutio-sdk 4.7.0 (lag, commandes en vol, snapshots, scheduled) ([30a5b0f](https://github.com/joutio/joutio-game/commit/30a5b0fbf637f1ea4af4307d270242be2c41b7de))
+
+## [8.3.0](https://github.com/joutio/joutio-game/compare/v8.2.0...v8.3.0) (2026-10-12)
+
+### Features
+
+* **console:** consume joutio-sdk 4.6.0 (build-info + API interne event store/scheduled) ([9911d1e](https://github.com/joutio/joutio-game/commit/9911d1e91845818925f1c4c829b5854b1a9a0ca5))
+
+## [8.2.0](https://github.com/joutio/joutio-game/compare/v8.1.0...v8.2.0) (2026-10-12)
+
+### Features
+
+* **console:** consume joutio-sdk 4.5.2 (DLQ Axon par défaut + agent console) ([cce65b8](https://github.com/joutio/joutio-game/commit/cce65b8f137ee33edfe4f1ef68cc7519c51734f1))
+
+## [8.1.0](https://github.com/joutio/joutio-game/compare/v8.0.1...v8.1.0) (2026-10-11)
+
+### Features
+
+* **game:** questions déjà jouées par joueurs sur un thème ([81926be](https://github.com/joutio/joutio-game/commit/81926be7135edc1e169fc717d681377591ed3c7f))
+
+## [8.0.1](https://github.com/joutio/joutio-game/compare/v8.0.0...v8.0.1) (2026-10-11)
+
+### Performance Improvements
+
+* **game:** cache d'agrégats Axon (évite le replay event store à chaque commande) ([8e41a0b](https://github.com/joutio/joutio-game/commit/8e41a0bc89eae0957f5bad36f2818a226468ed1a))
+
+## [8.0.0](https://github.com/joutio/joutio-game/compare/v7.0.0...v8.0.0) (2026-10-10)
+
+### ⚠ BREAKING CHANGES
+
+* **game:** CreateGameCommand change de contrat (questions au lieu de
+languages) et les queries/ports de lecture évoluent.
+
+### Features
+
+* **game:** questions portées par la commande, agrégat sans I/O ([6da106e](https://github.com/joutio/joutio-game/commit/6da106ede7a1ff5450b5cf8ffbd2ae72a7872332))
+
+## [7.0.0](https://github.com/joutio/joutio-game/compare/v6.1.0...v7.0.0) (2026-10-08)
+
+### ⚠ BREAKING CHANGES
+
+* **game:** statuts CREATED/READY, commandes join/leave/start et evenements GameJoined/GameLeft supprimes (reset prod requis).
+
+### Features
+
+* **game:** suppression de la salle d'attente (partie demarree a la creation) ([a69f1d5](https://github.com/joutio/joutio-game/commit/a69f1d5004166d0a4446486d21c5017e5c0ddb80))
+
+## [6.1.0](https://github.com/joutio/joutio-game/compare/v6.0.1...v6.1.0) (2026-10-08)
+
+### Features
+
+* **game:** questions repondues par theme (progression questions completees) ([7efd9c5](https://github.com/joutio/joutio-game/commit/7efd9c59ce8841b6951eb0ed74bf149be6816125))
+
+## [6.0.1](https://github.com/joutio/joutio-game/compare/v6.0.0...v6.0.1) (2026-10-08)
+
+### Bug Fixes
+
+* **game:** pinne joutio-theme-domain 4.6.0 (4.1.0 purge par prune-packages) ([c2fed7e](https://github.com/joutio/joutio-game/commit/c2fed7e5a305b4198d1b4ebdfd86765cf6c7135f))
+
+## [6.0.0](https://github.com/joutio/joutio-game/compare/v5.2.0...v6.0.0) (2026-10-08)
+
+### ⚠ BREAKING CHANGES
+
+* **game:** le rematch est retire de l'agregat game (la revanche passe par un defi nominatif), la presence FINISHED (join/leave d'ecran de resultat) est supprimee, et CreateGameCommand/GameCreatedEvent/GameResult sont etendus (reset prod requis).
+
+### Features
+
+* **game:** snapshot de progression dans l'agregat game et retrait du rematch ([ef61916](https://github.com/joutio/joutio-game/commit/ef619160db49fbfa56d01c8dad97c8334ca9ab03))
+
+## [5.2.0](https://github.com/joutio/joutio-game/compare/v5.1.1...v5.2.0) (2026-10-05)
+
+### Features
+
+* **game:** revanche native, presence ecran de resultat et query de resultat ([4494e4d](https://github.com/joutio/joutio-game/commit/4494e4d5d176eb2685c41ded62a8ce720a60a083))
+
+## [5.1.1](https://github.com/joutio/joutio-game/compare/v5.1.0...v5.1.1) (2026-10-05)
+
+### Bug Fixes
+
+* **game:** pin theme-domain 4.1.0 (resolution transitoire 4.0.0) ([a6fec65](https://github.com/joutio/joutio-game/commit/a6fec652946ce691ca103059b8d5230eabc85fa7))
+
+## [5.1.0](https://github.com/joutio/joutio-game/compare/v5.0.1...v5.1.0) (2026-10-05)
+
+### Features
+
+* **game:** query de la partie courante (reprise) ([5dbf952](https://github.com/joutio/joutio-game/commit/5dbf9527859d5e09bda44923b865084fcf7c59c1))
+
+## [5.0.1](https://github.com/joutio/joutio-game/compare/v5.0.0...v5.0.1) (2026-10-05)
+
+### Bug Fixes
+
+* **game:** annule une partie jamais demarree (START_TIMEOUT 90 s) ([f5e1cff](https://github.com/joutio/joutio-game/commit/f5e1cff92bb2e8f766a693ca6383f97959396af7))
+
+## [5.0.0](https://github.com/joutio/joutio-game/compare/v4.0.0...v5.0.0) (2026-10-02)
+
+### ⚠ BREAKING CHANGES
+
+* **game:** drop async mode, add explicit join/leave/forfeit/end commands
+
+### Features
+
+* **game:** drop async mode, add explicit join/leave/forfeit/end commands ([b1e6da7](https://github.com/joutio/joutio-game/commit/b1e6da7928dcf878af427254f5ebdc30bec52391))
+
+## [4.0.0](https://github.com/joutio/joutio-game/compare/v3.0.0...v4.0.0) (2026-09-30)
+
+### ⚠ BREAKING CHANGES
+
+* **game:** CreateGameCommand carries required languages; QuestionRepositoryPort and GetRandomApprovedQuestionsQuery filter strictly; GameQuestion holds a Map<Language, GameQuestionContent> without sourceLanguage.
+
+### Code Refactoring
+
+* **game:** strict per-language question selection and contents map ([0202752](https://github.com/joutio/joutio-game/commit/0202752fe9ef1266422aec1846fa8b9e7cc35900))
+
+## [3.0.0](https://github.com/joutio/joutio-game/compare/v2.1.0...v3.0.0) (2026-09-30)
+
+### ⚠ BREAKING CHANGES
+
+* **game:** GameQuestion carries sourceLanguage + translations (record shape changed); game-domain consumers must adapt.
+
+### Features
+
+* **game:** multilingual question snapshot with translations ([a01f26a](https://github.com/joutio/joutio-game/commit/a01f26a3ac34683ff89d3953f314b7adfc1b8e46))
+
+## [2.1.0](https://github.com/joutio/joutio-game/compare/v2.0.0...v2.1.0) (2026-09-27)
+
+### Features
+
+* **game:** player games, popular topics and run info queries; harden creation and expiry ([8c7a269](https://github.com/joutio/joutio-game/commit/8c7a269c98a13a00bf98ee188a94fae0b6679543))
+
+## [2.0.0](https://github.com/joutio/joutio-game/compare/v1.5.8...v2.0.0) (2026-09-25)
+
+### ⚠ BREAKING CHANGES
+
+* **game:** the service no longer exposes its REST API nor WebSocket
+(the BFF is the sole surface); search use cases now use the SDK SearchRequest/
+SearchResponse DTOs. Notifications are published by the BFF.
+
+### Features
+
+* **game:** headless service (REST + WS removed) + SDK search contracts ([c3db85a](https://github.com/joutio/joutio-game/commit/c3db85aaaa5ab5f8ba13502d4580f7306dc49b3e))
+
+## [1.5.8](https://github.com/joutio/joutio-game/compare/v1.5.7...v1.5.8) (2026-09-24)
+
+### Bug Fixes
+
+* **deps:** bump joutio-parent to 2.4.4 (typed PageResult over query transport) ([942f750](https://github.com/joutio/joutio-game/commit/942f750298a1d3661c692ee1a5b219f2ea54f6db))
+
+## [1.5.7](https://github.com/joutio/joutio-game/compare/v1.5.6...v1.5.7) (2026-09-24)
+
+### Bug Fixes
+
+* **deps:** bump joutio-parent to 2.4.3 (bus-only search criteria type info) ([6be7742](https://github.com/joutio/joutio-game/commit/6be7742faf166faf13a3a3d2c34c936c81bd2652))
+
+## [1.5.6](https://github.com/joutio/joutio-game/compare/v1.5.5...v1.5.6) (2026-09-24)
+
+### Bug Fixes
+
+* **deps:** bump joutio-parent to 2.4.2 (search criteria type info) ([5d2e08d](https://github.com/joutio/joutio-game/commit/5d2e08d0f17fe4154bc8479b4e74572c1f651687))
+
+## [1.5.5](https://github.com/joutio/joutio-game/compare/v1.5.4...v1.5.5) (2026-09-23)
+
+### Bug Fixes
+
+* **game:** keep cancel as POST action and bump SDK to 2.4.1 ([3120642](https://github.com/joutio/joutio-game/commit/312064225e82aef3e94f59024b995b75884c16d5))
+
+## [1.5.4](https://github.com/joutio/joutio-game/compare/v1.5.3...v1.5.4) (2026-09-22)
+
+### Bug Fixes
+
+* **joutio-game:** upgrade joutio-parent to 2.3.4 ([281b59e](https://github.com/joutio/joutio-game/commit/281b59eca77bc21a3d83349428cb7fa779b256d0))
+
+## [1.5.3](https://github.com/joutio/joutio-game/compare/v1.5.2...v1.5.3) (2026-09-22)
+
+### Bug Fixes
+
+* **joutio-game:** upgrade joutio-parent to 2.3.3 ([d53a276](https://github.com/joutio/joutio-game/commit/d53a276d2fcfcaa2bf9cb75afc4a578576120f74))
+
+## [1.5.2](https://github.com/joutio/joutio-game/compare/v1.5.1...v1.5.2) (2026-09-22)
+
+### Bug Fixes
+
+* **joutio-game:** upgrade joutio-parent to 2.3.2 ([efd585c](https://github.com/joutio/joutio-game/commit/efd585c42d39a971c8c65e703d4da6cceed0fb75))
+
+## [1.5.1](https://github.com/joutio/joutio-game/compare/v1.5.0...v1.5.1) (2026-09-22)
+
+### Bug Fixes
+
+* **game:** upgrade joutio-parent to 2.3.1 (registration address fix) ([0e4ef72](https://github.com/joutio/joutio-game/commit/0e4ef7278721c856eef78858b1bc861c237facc2))
+
+## [1.5.0](https://github.com/joutio/joutio-game/compare/v1.4.7...v1.5.0) (2026-09-22)
+
+### Features
+
+* **game:** explicit Axon processing groups ([88093e6](https://github.com/joutio/joutio-game/commit/88093e6c84a5ade7207cf90773c7d395f2b97614))
+
+## [1.4.7](https://github.com/joutio/joutio-game/compare/v1.4.6...v1.4.7) (2026-09-21)
+
+### Bug Fixes
+
+* **game:** recompute live scores from rounds (idempotent) ([d3e7e7c](https://github.com/joutio/joutio-game/commit/d3e7e7cc3b0261e48c6e24f4ba0b005273388074))
+* **observability:** keep readable console logs in local ([47caba2](https://github.com/joutio/joutio-game/commit/47caba279169069f435c7b8b25738d8dd246d629))
+
+## [1.4.6](https://github.com/joutio/joutio-game/compare/v1.4.5...v1.4.6) (2026-09-20)
+
+### Bug Fixes
+
+* **deps:** bump joutio-sdk to 2.1.1 ([c73def8](https://github.com/joutio/joutio-game/commit/c73def85b485be62db16695b004424836350d8c8))
+
+## [1.4.5](https://github.com/joutio/joutio-game/compare/v1.4.4...v1.4.5) (2026-09-20)
+
+### Bug Fixes
+
+* **config:** align prod service URLs with joutio-* names ([04bfdaa](https://github.com/joutio/joutio-game/commit/04bfdaa6ba2cb3876b2c7ebb702e462ad1577ad3))
+
+## [1.4.4](https://github.com/joutio/joutio-game/compare/v1.4.3...v1.4.4) (2026-09-20)
+
+### Bug Fixes
+
+* **deps:** bump joutio-sdk to 2.1.0 ([a87bcfe](https://github.com/joutio/joutio-game/commit/a87bcfefc9d5632cef731e0df0b6138a69fb52ec))
+
+## [1.4.3](https://github.com/joutio/joutio-game/compare/v1.4.2...v1.4.3) (2026-09-20)
+
+### Bug Fixes
+
+* **system:** use the unified system account ([429b753](https://github.com/joutio/joutio-game/commit/429b7532ae8ac62830998f04f76afed03e368adc))
+
+## [1.4.2](https://github.com/joutio/joutio-game/compare/v1.4.1...v1.4.2) (2026-09-20)
+
+### Bug Fixes
+
+* **observability:** remove WebSocket and business KPI metrics (consume joutio-sdk 1.4.3) ([a216148](https://github.com/joutio/joutio-game/commit/a2161488ea992bd2dec3eb5304e46c99e7883cae))
+
+## [1.4.1](https://github.com/joutio/joutio-game/compare/v1.4.0...v1.4.1) (2026-09-20)
+
+### Bug Fixes
+
+* **observability:** consume joutio-sdk 1.4.2 (Axon activity metrics fix + Swagger server URL) ([8830458](https://github.com/joutio/joutio-game/commit/883045870812a4901bb15f7712f512a0b8109cdb))
+
+## [1.4.0](https://github.com/joutio/joutio-game/compare/v1.3.0...v1.4.0) (2026-09-20)
+
+### Features
+
+* **observability:** consume joutio-sdk 1.4.0 (Axon activity metrics) ([ceee625](https://github.com/joutio/joutio-game/commit/ceee6252f6a9ead7b191bd9fe9bdf8a0f258d3c2))
+
+## [1.3.0](https://github.com/joutio/joutio-game/compare/v1.2.0...v1.3.0) (2026-09-20)
+
+### Features
+
+* **observability:** consume joutio-sdk 1.3.0 (WebSocket metrics) ([8ac3bda](https://github.com/joutio/joutio-game/commit/8ac3bda31021eeaebe9a88e90cd34ce7836c07f6))
+
+## [1.2.0](https://github.com/joutio/joutio-game/compare/v1.1.0...v1.2.0) (2026-09-20)
+
+### Features
+
+* **observability:** gameplay KPIs (consume joutio-sdk 1.2.0) ([9401b01](https://github.com/joutio/joutio-game/commit/9401b01fe06e3f3e92da07d07748d9dfb8218c8d))
+
+## [1.1.0](https://github.com/joutio/joutio-game/compare/v1.0.0...v1.1.0) (2026-09-20)
+
+### Features
+
+* **observability:** consume joutio-sdk 1.1.0 (Prometheus metrics) ([15e4c1f](https://github.com/joutio/joutio-game/commit/15e4c1f930983476efb309ccdb338fced297ed50))
+
+## 1.0.0 (2026-09-19)
+
+### Features
+
+* first commit ([ce57147](https://github.com/joutio/joutio-game/commit/ce5714741bac4e577da9682a581ff2bd4dc1f21d))
+
+### Bug Fixes
+
+* **maven:** pin inter-service domains to 0.0.1; align parent to joutio-parent 1.0.0 ([48bb88e](https://github.com/joutio/joutio-game/commit/48bb88eb35e07c1b8adf851e1c93c6d59284e21f))

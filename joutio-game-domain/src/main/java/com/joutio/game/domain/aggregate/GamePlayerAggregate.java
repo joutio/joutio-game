@@ -1,0 +1,45 @@
+package com.joutio.game.domain.aggregate;
+
+import com.joutio.game.domain.model.GamePlayer;
+import com.joutio.game.domain.model.GamePlayerType;
+import lombok.Getter;
+
+/**
+ * Sous-entité d'un joueur dans une partie, gérée par le GameAggregate parent.
+ * Encapsule l'identité et le score d'un joueur.
+ */
+@Getter
+public class GamePlayerAggregate {
+
+    private final GamePlayer player;
+
+    private final String playerName;
+
+    private final String playerId;
+
+    private final GamePlayerType playerType;
+
+    private int score;
+
+    public GamePlayerAggregate(GamePlayer player, String playerId, String playerName, GamePlayerType playerType) {
+        this.player = player;
+        this.playerId = playerId;
+        this.playerName = playerName;
+        this.playerType = playerType;
+        this.score = 0;
+    }
+
+    /**
+     * Ajoute des points au score du joueur.
+     */
+    public void addScore(int points) {
+        this.score += points;
+    }
+
+    /**
+     * Vérifie si ce slot correspond au playerId donné.
+     */
+    public boolean matches(String playerId) {
+        return this.playerId.equals(playerId);
+    }
+}

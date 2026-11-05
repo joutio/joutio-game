@@ -1,3 +1,9 @@
+## [1.0.1](https://github.com/joutio/joutio-game/compare/v1.0.0...v1.0.1) (2026-11-05)
+
+### Bug Fixes
+
+* **game:** align question read delay with the design ([36636ab](https://github.com/joutio/joutio-game/commit/36636abe36dfaf1dd658e3c3e5035fee57e6b22f))
+
 ## 1.0.0 (2026-10-27)
 
 ### Features

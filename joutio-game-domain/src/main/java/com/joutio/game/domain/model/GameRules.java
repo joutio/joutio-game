@@ -44,7 +44,7 @@ public final class GameRules {
      * Durée (ms) pendant laquelle la question est affichée seule, avant révélation des réponses.
      * Le chrono n'est armé qu'à l'issue de cette phase : la lecture ne consomme aucun temps.
      */
-    public static final long QUESTION_REVEAL_MS = 1980;
+    public static final long QUESTION_REVEAL_MS = 1400;
 
     /**
      * Délai serveur (ms) avant le premier round : écran VS + transition + intro de tour.

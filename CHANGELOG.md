@@ -1,3 +1,9 @@
+## [1.0.2](https://github.com/joutio/joutio-game/compare/v1.0.1...v1.0.2) (2026-11-11)
+
+### Bug Fixes
+
+* give players 2 s to read the question before the answers appear ([2abcada](https://github.com/joutio/joutio-game/commit/2abcada8316142f801226be18863274e7e9e4935))
+
 ## [1.0.1](https://github.com/joutio/joutio-game/compare/v1.0.0...v1.0.1) (2026-11-05)
 
 ### Bug Fixes

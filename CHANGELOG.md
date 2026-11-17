@@ -1,3 +1,9 @@
+## [1.2.1](https://github.com/joutio/joutio-game/compare/v1.2.0...v1.2.1) (2026-11-17)
+
+### Bug Fixes
+
+* **deps:** joutio-parent 1.2.0, segmented processing groups and single-partition Axon topic ([a89d7cb](https://github.com/joutio/joutio-game/commit/a89d7cb78eb7f703a2f0b5edc14cb8e4ab3e237f))
+
 ## [1.2.0](https://github.com/joutio/joutio-game/compare/v1.1.1...v1.2.0) (2026-11-17)
 
 ### Features

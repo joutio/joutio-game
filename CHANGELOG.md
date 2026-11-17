@@ -1,3 +1,9 @@
+## [1.1.0](https://github.com/joutio/joutio-game/compare/v1.0.2...v1.1.0) (2026-11-17)
+
+### Features
+
+* **game:** deterministic GameFlowSaga, bot answer drawn by the aggregate ([25d9db4](https://github.com/joutio/joutio-game/commit/25d9db4360f2993df0dd035f0b21e03699fbc8dc))
+
 ## [1.0.2](https://github.com/joutio/joutio-game/compare/v1.0.1...v1.0.2) (2026-11-11)
 
 ### Bug Fixes

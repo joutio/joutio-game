@@ -1,3 +1,9 @@
+## [1.1.1](https://github.com/joutio/joutio-game/compare/v1.1.0...v1.1.1) (2026-11-17)
+
+### Bug Fixes
+
+* **deps:** joutio-parent 1.1.0, unknown enum constants tolerated on the Axon transport ([7ad767a](https://github.com/joutio/joutio-game/commit/7ad767ae212d7c8c4b57b0781d2f0c238bd8e6b4))
+
 ## [1.1.0](https://github.com/joutio/joutio-game/compare/v1.0.2...v1.1.0) (2026-11-17)
 
 ### Features

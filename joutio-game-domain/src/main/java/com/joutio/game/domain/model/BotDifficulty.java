@@ -2,8 +2,8 @@ package com.joutio.game.domain.model;
 
 /**
  * Niveau de difficulté d'un bot (features.md §1 : « niveau de difficulté ajustable »).
- * La probabilité de réponse correcte et la fenêtre de temps de réponse pilotent le
- * comportement de la saga de jeu : plus le bot est difficile, plus il répond juste et vite.
+ * La probabilité de réponse correcte et la fenêtre de temps de réponse pilotent le tirage
+ * de {@link BotAnswer} à la révélation : plus le bot est difficile, plus il répond juste et vite.
  */
 public enum BotDifficulty {
 

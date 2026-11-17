@@ -17,6 +17,7 @@ import java.time.Instant;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ThreadLocalRandom;
 
 import static java.util.Objects.isNull;
 import static org.axonframework.modelling.command.AggregateLifecycle.apply;
@@ -44,6 +45,7 @@ public class GameAggregate {
     private final Map<GamePlayer, GamePlayerAggregate> players = new EnumMap<>(GamePlayer.class);
     private final Map<GameRoundType, GameRoundAggregate> rounds = new EnumMap<>(GameRoundType.class);
     private GameRoundType currentRound;
+    private BotDifficulty botDifficulty;
 
     protected GameAggregate() {
     }
@@ -170,12 +172,16 @@ public class GameAggregate {
         }
 
         Instant now = Instant.now();
+        BotAnswer botAnswer = players.get(GamePlayer.PLAYER_2).getPlayerType() == GamePlayerType.BOT
+                ? BotAnswer.draw(botDifficulty, round.getQuestion().correctAnswer(), now, ThreadLocalRandom.current())
+                : null;
         apply(
                 new GameEvent.QuestionRevealedEvent(
                         gameId,
                         currentRound,
                         now,
-                        now.plusSeconds(GameRules.ROUND_TIMEOUT_SECONDS)
+                        now.plusSeconds(GameRules.ROUND_TIMEOUT_SECONDS),
+                        botAnswer
                 )
         );
     }
@@ -261,6 +267,7 @@ public class GameAggregate {
         this.topicId = event.topicId();
         this.status = GameStatus.IN_PROGRESS;
         this.currentRound = GameRoundType.ROUND_1;
+        this.botDifficulty = BotDifficulty.fromOrDefault(event.botDifficulty());
 
         players.put(GamePlayer.PLAYER_1, new GamePlayerAggregate(GamePlayer.PLAYER_1, event.player1Id(), event.player1Name(), GamePlayerType.HUMAN));
         players.put(GamePlayer.PLAYER_2, new GamePlayerAggregate(GamePlayer.PLAYER_2, event.player2Id(), event.player2Name(), event.player2Type()));

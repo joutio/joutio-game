@@ -4,6 +4,8 @@ import com.joutio.axon.test.JoutioAxonMatchers;
 import com.joutio.game.domain.command.GameCommand;
 import com.joutio.game.domain.event.GameEvent;
 import com.joutio.game.domain.exception.GameExceptions;
+import com.joutio.game.domain.model.BotAnswer;
+import com.joutio.game.domain.model.BotDifficulty;
 import com.joutio.game.domain.model.GamePlayerType;
 import com.joutio.game.domain.model.GameQuestion;
 import com.joutio.game.domain.model.GameQuestionChoice;
@@ -16,6 +18,7 @@ import org.axonframework.test.aggregate.AggregateTestFixture;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
@@ -124,6 +127,33 @@ class GameAggregateTest {
     }
 
     @Test
+    void revealQuestion_humanGame_drawsNoBotAnswer() {
+        fixture.given(concat(created(), roundStarted(Instant.now())))
+                .when(new GameCommand.RevealQuestionCommand(GAME_ID))
+                .expectEventsMatching(JoutioAxonMatchers.hasPayloadMatching(
+                        GameEvent.QuestionRevealedEvent.class,
+                        e -> ((GameEvent.QuestionRevealedEvent) e).botAnswer() == null));
+    }
+
+    @Test
+    void revealQuestion_botGame_carriesBotAnswerWithinDifficultyWindow() {
+        BotDifficulty difficulty = BotDifficulty.HARD;
+
+        fixture.given(concat(created(GamePlayerType.BOT, difficulty), roundStarted(Instant.now())))
+                .when(new GameCommand.RevealQuestionCommand(GAME_ID))
+                .expectEventsMatching(JoutioAxonMatchers.hasPayloadMatching(
+                        GameEvent.QuestionRevealedEvent.class,
+                        e -> {
+                            GameEvent.QuestionRevealedEvent revealed = (GameEvent.QuestionRevealedEvent) e;
+                            BotAnswer bot = revealed.botAnswer();
+                            long delay = Duration.between(revealed.revealedAt(), bot.answerAt()).toMillis();
+                            return bot.choice() != null
+                                    && delay >= difficulty.minAnswerDelayMillis()
+                                    && delay <= difficulty.maxAnswerDelayMillis();
+                        }));
+    }
+
+    @Test
     void forfeitEndsGame_andOpponentWins() {
         fixture.given(created())
                 .when(new GameCommand.ForfeitGameCommand(GAME_ID, PLAYER_2))
@@ -186,11 +216,15 @@ class GameAggregateTest {
 
     /** La partie naît démarrée : {@code GameCreatedEvent} puis {@code GameStartedEvent}. */
     private Object[] created() {
+        return created(GamePlayerType.HUMAN, null);
+    }
+
+    private Object[] created(GamePlayerType player2Type, BotDifficulty botDifficulty) {
         Instant now = Instant.now();
         return new Object[]{
                 new GameEvent.GameCreatedEvent(
                         GAME_ID, TOPIC_ID, PLAYER_1, "Alpha", PLAYER_2, "Bravo",
-                        GamePlayerType.HUMAN, questions(), null,
+                        player2Type, questions(), botDifficulty,
                         PLAYER_1_PROGRESS, PLAYER_2_PROGRESS, now),
                 new GameEvent.GameStartedEvent(GAME_ID, now, now.plusMillis(GameRules.MATCH_INTRO_MS))
         };
@@ -265,7 +299,8 @@ class GameAggregateTest {
                 GAME_ID,
                 GameRoundType.ROUND_1,
                 revealedAt,
-                revealedAt.plusSeconds(GameRules.ROUND_TIMEOUT_SECONDS)
+                revealedAt.plusSeconds(GameRules.ROUND_TIMEOUT_SECONDS),
+                null
         );
     }
 

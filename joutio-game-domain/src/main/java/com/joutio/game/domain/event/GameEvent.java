@@ -77,7 +77,9 @@ public interface GameEvent {
             String gameId,
             GameRoundType round,
             Instant revealedAt,
-            Instant answerDeadlineAt
+            Instant answerDeadlineAt,
+            /* Réponse tirée pour le bot (partie contre un bot), {@code null} entre humains. */
+            BotAnswer botAnswer
     ) implements GameEvent {
     }
 

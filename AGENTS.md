@@ -26,7 +26,8 @@ Lire : `../../AGENTS.md`, [`docs/backend/axon.md`](../../docs/backend/axon.md), 
 - `MATCH_INTRO`, puis pour chaque manche :
   1. `StartRoundCommand` ;
   2. `QUESTION_REVEAL` → `RevealQuestionCommand` ;
-  3. réponses (`AnswerQuestionCommand`), le bot répondant sur `BOT_ANSWERS` ;
+  3. réponses (`AnswerQuestionCommand`), le bot répondant sur `BOT_ANSWERS` avec le choix et l'instant tirés par
+     l'agrégat à la révélation (`BotAnswer` dans `QuestionRevealedEvent`) ;
   4. `ROUND_EXPIRED` à 10 s : une non-réponse compte comme fausse ;
   5. `CloseRoundCommand`, puis `NEXT_ROUND_STARTS`.
 
@@ -62,6 +63,6 @@ mvn -pl joutio-game-infrastructure test
 
 ## Pièges
 
-- `GameFlowSaga` utilise un `Random` statique (réponses du bot) et `Instant.now()` pour certains
-  délais : non déterministe au replay (`docs/ROADMAP.md`, Dette).
+- `GameFlowSaga` reste déterministe : deadlines planifiées aux instants des événements, réponses vides datées de
+  `answerDeadlineAt`, réponse du bot lue dans l'événement. Tout aléa se tire dans l'agrégat et passe par un événement.
 - 3 deadlines par manche : c'est le principal coût sous charge (`stress-test/INFRA.md`).

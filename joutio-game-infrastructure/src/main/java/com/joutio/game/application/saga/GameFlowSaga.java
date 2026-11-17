@@ -17,25 +17,25 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.time.Duration;
 import java.time.Instant;
-import java.util.Random;
 
 /**
  * Orchestration du cycle de vie d'une partie :
  * <ul>
  *   <li>la partie démarre immédiatement à sa création (présence garantie en amont par le
  *       salon/l'appariement côté {@code joutio-matchmaking}) ;</li>
- *   <li>les deadlines de phase sont dérivées des instants absolus portés par les événements.</li>
+ *   <li>les deadlines de phase sont planifiées aux instants absolus portés par les événements ;</li>
+ *   <li>la réponse du bot (choix et instant) est tirée par l'agrégat et portée par
+ *       {@code QuestionRevealedEvent}.</li>
  * </ul>
  *
- * <p>Le serveur est seule source de vérité du temps.
+ * <p>Le serveur est seule source de vérité du temps. Déterministe : ni {@code Random} ni
+ * {@code Instant.now()}, un rejeu prend les mêmes décisions.
  */
 @Saga
 @ProcessingGroup("game-flow-saga")
 public class GameFlowSaga {
 
-    private static final Random RANDOM = new Random();
     private static final Logger logger = LoggerFactory.getLogger(GameFlowSaga.class);
 
     @Autowired
@@ -67,19 +67,17 @@ public class GameFlowSaga {
 
     @Getter
     @Setter
-    private GamePlayerType player2Type;
-
-    @Getter
-    @Setter
-    private BotDifficulty botDifficulty;
-
-    @Getter
-    @Setter
     private GameRoundType currentRound;
 
+    /** Fin de la fenêtre de réponse de la manche : instant des réponses vides à l'expiration. */
     @Getter
     @Setter
-    private GameQuestionChoice currentCorrectAnswer;
+    private Instant answerDeadlineAt;
+
+    /** Réponse du bot pour la manche en cours, {@code null} entre humains. */
+    @Getter
+    @Setter
+    private BotAnswer botAnswer;
 
     @Getter
     @Setter
@@ -119,10 +117,8 @@ public class GameFlowSaga {
         this.gameId = event.gameId();
         this.player1Id = event.player1Id();
         this.player2Id = event.player2Id();
-        this.player2Type = event.player2Type();
-        this.botDifficulty = BotDifficulty.fromOrDefault(event.botDifficulty());
         this.expiredDeadlineId = deadlineManager.schedule(
-                GameDeadline.GAME_EXPIRED_TIMEOUT,
+                event.createdAt().plus(GameDeadline.GAME_EXPIRED_TIMEOUT),
                 GameDeadline.GAME_EXPIRED
         );
     }
@@ -131,7 +127,7 @@ public class GameFlowSaga {
     public void on(GameEvent.GameStartedEvent event) {
         this.started = true;
         matchIntroDeadlineId = deadlineManager.schedule(
-                durationUntil(event.firstRoundAt()),
+                event.firstRoundAt(),
                 GameDeadline.MATCH_INTRO
         );
     }
@@ -158,10 +154,9 @@ public class GameFlowSaga {
     @SagaEventHandler(associationProperty = "gameId")
     public void on(GameEvent.RoundStartedEvent event) {
         this.currentRound = event.round();
-        this.currentCorrectAnswer = event.question().correctAnswer();
 
         questionRevealDeadlineId = deadlineManager.schedule(
-                durationUntil(event.revealAt()),
+                event.revealAt(),
                 GameDeadline.QUESTION_REVEAL
         );
     }
@@ -176,28 +171,23 @@ public class GameFlowSaga {
         this.answersInCurrentRound = 0;
         this.player1Answered = false;
         this.player2Answered = false;
+        this.answerDeadlineAt = event.answerDeadlineAt();
+        this.botAnswer = event.botAnswer();
 
         roundDeadlineId = deadlineManager.schedule(
-                durationUntil(event.answerDeadlineAt()),
+                event.answerDeadlineAt(),
                 GameDeadline.ROUND_EXPIRED
         );
 
-        if (GamePlayerType.BOT.equals(player2Type)) {
-            botDeadlineId = deadlineManager.schedule(
-                    randomBotAnswerDelay(),
-                    GameDeadline.BOT_ANSWERS
-            );
+        if (botAnswer != null) {
+            botDeadlineId = deadlineManager.schedule(botAnswer.answerAt(), GameDeadline.BOT_ANSWERS);
         }
     }
 
     @DeadlineHandler(deadlineName = GameDeadline.BOT_ANSWERS)
     public void onBotAnswers() {
-        GameQuestionChoice botChoice = RANDOM.nextDouble() < botDifficulty.correctProbability()
-                ? currentCorrectAnswer
-                : randomWrongAnswer(currentCorrectAnswer);
-
         commandGateway.send(
-                new GameCommand.AnswerQuestionCommand(gameId, player2Id, botChoice, Instant.now())
+                new GameCommand.AnswerQuestionCommand(gameId, player2Id, botAnswer.choice(), botAnswer.answerAt())
         );
     }
 
@@ -219,10 +209,10 @@ public class GameFlowSaga {
     @DeadlineHandler(deadlineName = GameDeadline.ROUND_EXPIRED)
     public void onRoundExpired() {
         if (!player1Answered) {
-            commandGateway.send(new GameCommand.AnswerQuestionCommand(gameId, player1Id, null, Instant.now()));
+            commandGateway.send(new GameCommand.AnswerQuestionCommand(gameId, player1Id, null, answerDeadlineAt));
         }
         if (!player2Answered) {
-            commandGateway.send(new GameCommand.AnswerQuestionCommand(gameId, player2Id, null, Instant.now()));
+            commandGateway.send(new GameCommand.AnswerQuestionCommand(gameId, player2Id, null, answerDeadlineAt));
         }
     }
 
@@ -232,7 +222,7 @@ public class GameFlowSaga {
 
         if (event.nextRound() != null) {
             nextRoundDeadlineId = deadlineManager.schedule(
-                    durationUntil(event.nextRoundAt()),
+                    event.nextRoundAt(),
                     GameDeadline.NEXT_ROUND_STARTS
             );
         } else {
@@ -303,26 +293,5 @@ public class GameFlowSaga {
             deadlineManager.cancelSchedule(GameDeadline.GAME_EXPIRED, expiredDeadlineId);
             expiredDeadlineId = null;
         }
-    }
-
-    private Duration durationUntil(Instant target) {
-        Duration delay = Duration.between(Instant.now(), target);
-        return delay.isNegative() ? Duration.ZERO : delay;
-    }
-
-    private Duration randomBotAnswerDelay() {
-        long min = botDifficulty.minAnswerDelayMillis();
-        long max = botDifficulty.maxAnswerDelayMillis();
-        long delay = min + (long) (RANDOM.nextDouble() * (max - min + 1));
-        return Duration.ofMillis(delay);
-    }
-
-    private GameQuestionChoice randomWrongAnswer(GameQuestionChoice correct) {
-        GameQuestionChoice[] all = GameQuestionChoice.values();
-        GameQuestionChoice wrong;
-        do {
-            wrong = all[RANDOM.nextInt(all.length)];
-        } while (wrong == correct);
-        return wrong;
     }
 }

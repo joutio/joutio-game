@@ -1,3 +1,9 @@
+## [1.2.0](https://github.com/joutio/joutio-game/compare/v1.1.1...v1.2.0) (2026-11-17)
+
+### Features
+
+* multi-replica game with stall sweeper ([97cd059](https://github.com/joutio/joutio-game/commit/97cd059b822ad81f43426df7d55a606d889d366a))
+
 ## [1.1.1](https://github.com/joutio/joutio-game/compare/v1.1.0...v1.1.1) (2026-11-17)
 
 ### Bug Fixes

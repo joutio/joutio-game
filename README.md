@@ -1,11 +1,6 @@
-# joutio-game (staging local)
+# joutio-game
 
-Structure cible en 2 sous-modules Maven :
+Parties en duel : manches, réponses, score.
 
-- `joutio-game-domain`
-- `joutio-game-infrastructure`
-
-Seul `joutio-game-domain` est importable inter-services.
-
-Le code applicatif reste organise sous `com.joutio.game.application.*` dans le module infrastructure.
-
+Service du workspace Joutio : règles, état et commandes dans [`AGENTS.md`](AGENTS.md) ; documentation
+commune dans `docs/` du workspace.

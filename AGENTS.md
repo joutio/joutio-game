@@ -35,8 +35,11 @@ Lire : `../../AGENTS.md`, [`docs/backend/axon.md`](../../docs/backend/axon.md), 
 - Score et constantes dans `GameRules` : 10/20 points, bonus de vitesse jusqu'à +10/+20.
 - `ForfeitGameCommand` : abandon, l'adversaire gagne.
 - `CancelGameCommand` : annulation sans vainqueur (motif `PLAYER_CANCELLED`, `GAME_EXPIRED`,
-  `ACCOUNT_DELETED`). Sans effet sur une partie terminée.
+  `GAME_STALLED`, `ACCOUNT_DELETED`). Sans effet sur une partie terminée.
 - Filet `GAME_EXPIRED` (24 h) : partie non démarrée → annulée ; en cours → close au score.
+- Filet `GameStallSweeper` (tâche récurrente db-scheduler, 1 min, une exécution dans le cluster) :
+  partie en cours sans échéance de manche depuis 2 min (deadline en mémoire perdue avec son pod) →
+  `CancelGameCommand` motif `GAME_STALLED`.
 - `GameEndedEvent` porte les faits utiles à la progression : réponses correctes et rapides,
   bonnes réponses sur image, `botGame`, nul. Profile ignore les gains d'un entraînement.
 
@@ -66,3 +69,6 @@ mvn -pl joutio-game-infrastructure test
 - `GameFlowSaga` reste déterministe : deadlines planifiées aux instants des événements, réponses vides datées de
   `answerDeadlineAt`, réponse du bot lue dans l'événement. Tout aléa se tire dans l'agrégat et passe par un événement.
 - 3 deadlines par manche : c'est le principal coût sous charge (`stress-test/INFRA.md`).
+- Deux répliques : `game-flow-saga` et `game-projection` sont segmentés (`application.yml`,
+  [axon](../../docs/backend/axon.md#segments-et-répliques)). Le cache d'agrégats est propre au pod ;
+  après un changement de topologie, un agrégat périmé échoue une fois puis Axon l'évince.

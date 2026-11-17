@@ -74,4 +74,16 @@ public interface GameJpaRepository extends JpaRepository<GameEntity, String>, Jp
             """)
     List<String> findPlayedQuestionIds(@Param("topicId") String topicId,
                                        @Param("playerIds") Collection<String> playerIds);
+
+    @Query("""
+            select g.gameId from GameEntity g
+            where g.status = com.joutio.game.domain.model.GameStatus.IN_PROGRESS
+              and g.createdAt < :before
+              and (g.startedAt is null or g.startedAt < :before)
+              and not exists (
+                select r from GameRoundEntity r
+                where r.game = g and r.answerDeadlineAt >= :before
+              )
+            """)
+    List<String> findStalledInProgressIds(@Param("before") Instant before);
 }

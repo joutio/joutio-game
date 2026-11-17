@@ -207,4 +207,10 @@ public class GameRepositoryAdapter implements GameRepositoryPort {
     public List<String> findPlayedQuestionIds(String topicId, Collection<String> playerIds) {
         return gameJpaRepository.findPlayedQuestionIds(topicId, playerIds);
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<String> findStalledInProgressIds(Instant before) {
+        return gameJpaRepository.findStalledInProgressIds(before);
+    }
 }

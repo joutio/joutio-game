@@ -22,3 +22,13 @@ microservice:
     # Surface REST/WS portée par le BFF ; les services sont headless.
     enabled: false
 
+
+joutio:
+  axon:
+    # Groupes chauds segmentés : un thread par segment et par réplique, répartition entre
+    # répliques par le rééquilibreur du SDK. Appliqué à la création du token (base vierge).
+    processors:
+      game-flow-saga:
+        segments: 4
+      game-projection:
+        segments: 4

@@ -20,6 +20,16 @@ public interface GameDeadline {
     Duration GAME_EXPIRED_TIMEOUT = Duration.ofHours(GAME_TIMEOUT_HOURS);
 
     /**
+     * Filet du balayeur ({@code GameStallSweeper}) : une partie en cours sans échéance de manche
+     * depuis ce délai a perdu sa deadline en mémoire avec son pod. Très au-delà de la plus longue
+     * phase normale (intro, révélation, chrono, transition).
+     */
+    Duration GAME_STALL = Duration.ofMinutes(2);
+
+    /** Motif d'annulation d'une partie bloquée par le balayeur. */
+    String GAME_STALLED_REASON = "GAME_STALLED";
+
+    /**
      * Révélation des réponses : la question est affichée seule pendant {@code QUESTION_REVEAL_MS},
      * puis la saga émet la révélation et arme le chrono du round.
      */

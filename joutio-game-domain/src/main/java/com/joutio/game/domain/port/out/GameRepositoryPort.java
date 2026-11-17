@@ -67,4 +67,10 @@ public interface GameRepositoryPort {
      * affichés ({@code status != CREATED}), dédupliquées. Potentiellement vide.
      */
     List<String> findPlayedQuestionIds(String topicId, Collection<String> playerIds);
+
+    /**
+     * Parties {@code IN_PROGRESS} sans activité depuis {@code before} : démarrées avant, et sans
+     * échéance de manche postérieure.
+     */
+    List<String> findStalledInProgressIds(Instant before);
 }

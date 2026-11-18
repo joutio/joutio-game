@@ -1,3 +1,9 @@
+## [1.2.3](https://github.com/joutio/joutio-game/compare/v1.2.2...v1.2.3) (2026-11-18)
+
+### Bug Fixes
+
+* **deps:** joutio-parent 2.1.0, consistent command routing across replicas ([858c67e](https://github.com/joutio/joutio-game/commit/858c67eb67e257ad7ee2e196bae009c88dd93897))
+
 ## [1.2.2](https://github.com/joutio/joutio-game/compare/v1.2.1...v1.2.2) (2026-11-18)
 
 ### Bug Fixes

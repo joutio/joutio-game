@@ -1,3 +1,9 @@
+## [1.2.2](https://github.com/joutio/joutio-game/compare/v1.2.1...v1.2.2) (2026-11-18)
+
+### Bug Fixes
+
+* **deps:** joutio-parent 2.0.0, one segment per replica on hot groups ([beaf4b9](https://github.com/joutio/joutio-game/commit/beaf4b9a22450b78d82723fab31c036434e69297))
+
 ## [1.2.1](https://github.com/joutio/joutio-game/compare/v1.2.0...v1.2.1) (2026-11-17)
 
 ### Bug Fixes

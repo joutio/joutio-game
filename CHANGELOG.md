@@ -1,3 +1,9 @@
+## [1.2.4](https://github.com/joutio/joutio-game/compare/v1.2.3...v1.2.4) (2026-11-19)
+
+### Bug Fixes
+
+* **game:** bot answer kept by the aggregate, idempotent answers per round ([8d07596](https://github.com/joutio/joutio-game/commit/8d07596563a5811b1838a9075b71a9e354567e30))
+
 ## [1.2.3](https://github.com/joutio/joutio-game/compare/v1.2.2...v1.2.3) (2026-11-18)
 
 ### Bug Fixes

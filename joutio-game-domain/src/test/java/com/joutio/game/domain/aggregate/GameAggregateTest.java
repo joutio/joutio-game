@@ -442,14 +442,14 @@ class GameAggregateTest {
                                                 GameQuestionChoice.A, "Réponse A",
                                                 GameQuestionChoice.B, "Réponse B",
                                                 GameQuestionChoice.C, "Réponse C",
-                                                GameQuestionChoice.D, "Réponse D")),
+                                                GameQuestionChoice.D, "Réponse D"), null),
                                 Language.EN, new GameQuestionContent(
                                         "Question " + i,
                                         Map.of(
                                                 GameQuestionChoice.A, "Answer A",
                                                 GameQuestionChoice.B, "Answer B",
                                                 GameQuestionChoice.C, "Answer C",
-                                                GameQuestionChoice.D, "Answer D"))),
+                                                GameQuestionChoice.D, "Answer D"), null)),
                         null,
                         null,
                         GameQuestionChoice.A))

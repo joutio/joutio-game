@@ -4,6 +4,7 @@ import com.joutio.game.domain.model.BotDifficulty;
 import com.joutio.game.domain.model.GamePlayerType;
 import com.joutio.game.domain.model.GameQuestion;
 import com.joutio.game.domain.model.GameQuestionChoice;
+import com.joutio.game.domain.model.GameRoundType;
 import com.joutio.game.domain.model.PlayerProgressSnapshot;
 import org.axonframework.modelling.command.TargetAggregateIdentifier;
 
@@ -80,9 +81,15 @@ public interface GameCommand {
     ) implements GameCommand {
     }
 
+    /**
+     * Réponse d'un joueur à la manche {@code round}. Idempotente : un renvoi (réseau instable) pour une manche à
+     * laquelle le joueur a déjà répondu est sans effet ; une autre manche que la courante est refusée
+     * ({@code RoundMismatchProblem}), un renvoi tardif n'atteint donc jamais la manche suivante.
+     */
     record AnswerQuestionCommand(
             @TargetAggregateIdentifier String gameId,
             String playerId,
+            GameRoundType round,
             GameQuestionChoice choice,
             Instant timestamp
     ) implements GameCommand {
@@ -90,6 +97,27 @@ public interface GameCommand {
 
     record CloseRoundCommand(
             @TargetAggregateIdentifier String gameId
+    ) implements GameCommand {
+    }
+
+    /**
+     * Le bot donne la réponse tirée à la révélation de {@code round} (choix et instant gardés par l'agrégat). Émise par
+     * la saga à l'instant de la réponse ; sans effet si le bot a déjà répondu ou si la manche n'est plus ouverte.
+     */
+    record BotAnswerCommand(
+            @TargetAggregateIdentifier String gameId,
+            GameRoundType round
+    ) implements GameCommand {
+    }
+
+    /**
+     * Échéance de {@code round} : chaque réponse manquante est enregistrée, celle tirée pour le bot, vide à l'échéance
+     * pour un humain. Sans effet si la manche n'est plus ouverte. Le bot ne perd donc jamais sa réponse, quel que soit
+     * l'ordre d'arrivée des deadlines sous charge.
+     */
+    record ExpireRoundCommand(
+            @TargetAggregateIdentifier String gameId,
+            GameRoundType round
     ) implements GameCommand {
     }
 }

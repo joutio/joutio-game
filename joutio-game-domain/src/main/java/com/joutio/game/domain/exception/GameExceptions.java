@@ -135,13 +135,16 @@ public interface GameExceptions {
         }
     }
 
-    class RoundAlreadyAnsweredProblem extends GameProblem {
-        public RoundAlreadyAnsweredProblem(String gameId, String round, String playerId) {
-            super(gameId, "urn:joutio:game:roundAlreadyAnswered",
+    /**
+     * Réponse destinée à une autre manche que la manche courante (renvoi tardif après la clôture).
+     */
+    class RoundMismatchProblem extends GameProblem {
+        public RoundMismatchProblem(String gameId, String round, String currentRound) {
+            super(gameId, "urn:joutio:game:roundMismatch",
                     ProblemCategory.BUSINESS_INVALID_COMMAND,
-                    "Round already answered",
-                    "Player " + playerId + " has already answered round " + round + " in game " + gameId,
-                    Map.of("round", round, "playerId", playerId));
+                    "Round is not the current one",
+                    "Answer for round " + round + " in game " + gameId + " while the current round is " + currentRound,
+                    Map.of("round", round, "currentRound", currentRound));
         }
     }
 }

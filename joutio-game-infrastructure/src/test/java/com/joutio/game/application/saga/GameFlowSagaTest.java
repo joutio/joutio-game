@@ -39,28 +39,43 @@ class GameFlowSagaTest {
     }
 
     @Test
-    void botAnswers_withTheChoiceAndInstantCarriedByTheEvent() {
+    void botAnswers_atTheDrawnInstant_forTheRevealedRound() {
         Instant revealedAt = fixture.currentTime();
         BotAnswer bot = new BotAnswer(GameQuestionChoice.C, revealedAt.plusMillis(2500));
 
         fixture.givenAPublished(gameCreated(GamePlayerType.BOT))
                 .andThenAPublished(revealed(revealedAt, bot))
                 .whenTimeAdvancesTo(bot.answerAt())
-                .expectDispatchedCommands(
-                        new GameCommand.AnswerQuestionCommand(GAME_ID, PLAYER_2, GameQuestionChoice.C, bot.answerAt()));
+                .expectDispatchedCommands(new GameCommand.BotAnswerCommand(GAME_ID, GameRoundType.ROUND_1));
     }
 
     @Test
-    void roundExpired_answersEmptyAtTheEventDeadline() {
+    void roundExpired_expiresTheRevealedRound() {
         Instant revealedAt = fixture.currentTime();
         GameEvent.QuestionRevealedEvent revealed = revealed(revealedAt, null);
 
         fixture.givenAPublished(gameCreated(GamePlayerType.HUMAN))
                 .andThenAPublished(revealed)
                 .whenTimeAdvancesTo(revealed.answerDeadlineAt())
+                .expectDispatchedCommands(new GameCommand.ExpireRoundCommand(GAME_ID, GameRoundType.ROUND_1));
+    }
+
+    /**
+     * Sous charge, l'échéance peut passer avant la réponse du bot (deadline en retard) : la saga n'envoie plus de
+     * réponse vide pour le bot, l'agrégat applique la réponse tirée (2026-11-19).
+     */
+    @Test
+    void lateBotDeadline_stillOnlyExpiresTheRound() {
+        Instant revealedAt = fixture.currentTime();
+        BotAnswer bot = new BotAnswer(GameQuestionChoice.C, revealedAt.plusSeconds(GameRules.ROUND_TIMEOUT_SECONDS));
+        GameEvent.QuestionRevealedEvent revealed = revealed(revealedAt, bot);
+
+        fixture.givenAPublished(gameCreated(GamePlayerType.BOT))
+                .andThenAPublished(revealed)
+                .whenTimeAdvancesTo(revealed.answerDeadlineAt())
                 .expectDispatchedCommands(
-                        new GameCommand.AnswerQuestionCommand(GAME_ID, PLAYER_1, null, revealed.answerDeadlineAt()),
-                        new GameCommand.AnswerQuestionCommand(GAME_ID, PLAYER_2, null, revealed.answerDeadlineAt()));
+                        new GameCommand.ExpireRoundCommand(GAME_ID, GameRoundType.ROUND_1),
+                        new GameCommand.BotAnswerCommand(GAME_ID, GameRoundType.ROUND_1));
     }
 
     private GameEvent.GameCreatedEvent gameCreated(GamePlayerType player2Type) {

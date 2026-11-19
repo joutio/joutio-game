@@ -37,6 +37,9 @@ public class GameRoundAggregate {
     /** Échéance absolue du chrono : après cet instant, le round est clos. */
     private Instant answerDeadlineAt;
 
+    /** Réponse tirée pour le bot à la révélation, {@code null} entre humains. */
+    private BotAnswer botAnswer;
+
     private Instant closedAt;
 
     private final Map<GamePlayer, PlayerAnswer> answers = new EnumMap<>(GamePlayer.class);
@@ -54,10 +57,11 @@ public class GameRoundAggregate {
     }
 
     /** Les réponses sont révélées : le chrono démarre et court jusqu'à {@code answerDeadlineAt}. */
-    public void reveal(Instant revealedAt, Instant answerDeadlineAt) {
+    public void reveal(Instant revealedAt, Instant answerDeadlineAt, BotAnswer botAnswer) {
         this.status = GameRoundStatus.ANSWERABLE;
         this.revealedAt = revealedAt;
         this.answerDeadlineAt = answerDeadlineAt;
+        this.botAnswer = botAnswer;
     }
 
     public void closeRound(Instant closedAt) {

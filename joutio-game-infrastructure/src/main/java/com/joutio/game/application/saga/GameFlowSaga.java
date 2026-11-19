@@ -17,7 +17,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.time.Instant;
 
 /**
  * Orchestration du cycle de vie d'une partie :
@@ -25,8 +24,10 @@ import java.time.Instant;
  *   <li>la partie démarre immédiatement à sa création (présence garantie en amont par le
  *       salon/l'appariement côté {@code joutio-matchmaking}) ;</li>
  *   <li>les deadlines de phase sont planifiées aux instants absolus portés par les événements ;</li>
- *   <li>la réponse du bot (choix et instant) est tirée par l'agrégat et portée par
- *       {@code QuestionRevealedEvent}.</li>
+ *   <li>la réponse du bot (choix et instant) est tirée et gardée par l'agrégat ; la saga ne fait que
+ *       déclencher {@code BotAnswerCommand} à son instant et {@code ExpireRoundCommand} à l'échéance, deux
+ *       commandes idempotentes par manche : l'ordre d'arrivée des deadlines sous charge ne peut plus faire
+ *       perdre la réponse du bot (2026-11-19).</li>
  * </ul>
  *
  * <p>Le serveur est seule source de vérité du temps. Déterministe : ni {@code Random} ni
@@ -69,27 +70,9 @@ public class GameFlowSaga {
     @Setter
     private GameRoundType currentRound;
 
-    /** Fin de la fenêtre de réponse de la manche : instant des réponses vides à l'expiration. */
-    @Getter
-    @Setter
-    private Instant answerDeadlineAt;
-
-    /** Réponse du bot pour la manche en cours, {@code null} entre humains. */
-    @Getter
-    @Setter
-    private BotAnswer botAnswer;
-
     @Getter
     @Setter
     private int answersInCurrentRound;
-
-    @Getter
-    @Setter
-    private boolean player1Answered;
-
-    @Getter
-    @Setter
-    private boolean player2Answered;
 
     @Getter
     @Setter
@@ -168,38 +151,27 @@ public class GameFlowSaga {
 
     @SagaEventHandler(associationProperty = "gameId")
     public void on(GameEvent.QuestionRevealedEvent event) {
+        this.currentRound = event.round();
         this.answersInCurrentRound = 0;
-        this.player1Answered = false;
-        this.player2Answered = false;
-        this.answerDeadlineAt = event.answerDeadlineAt();
-        this.botAnswer = event.botAnswer();
 
         roundDeadlineId = deadlineManager.schedule(
                 event.answerDeadlineAt(),
                 GameDeadline.ROUND_EXPIRED
         );
 
-        if (botAnswer != null) {
-            botDeadlineId = deadlineManager.schedule(botAnswer.answerAt(), GameDeadline.BOT_ANSWERS);
+        if (event.botAnswer() != null) {
+            botDeadlineId = deadlineManager.schedule(event.botAnswer().answerAt(), GameDeadline.BOT_ANSWERS);
         }
     }
 
     @DeadlineHandler(deadlineName = GameDeadline.BOT_ANSWERS)
     public void onBotAnswers() {
-        commandGateway.send(
-                new GameCommand.AnswerQuestionCommand(gameId, player2Id, botAnswer.choice(), botAnswer.answerAt())
-        );
+        commandGateway.send(new GameCommand.BotAnswerCommand(gameId, currentRound));
     }
 
     @SagaEventHandler(associationProperty = "gameId")
     public void on(GameEvent.QuestionAnsweredEvent event) {
         answersInCurrentRound++;
-        if (event.playerId().equals(player1Id)) {
-            player1Answered = true;
-        } else {
-            player2Answered = true;
-        }
-
         if (answersInCurrentRound >= 2) {
             cancelRoundDeadlines();
             commandGateway.send(new GameCommand.CloseRoundCommand(gameId));
@@ -208,12 +180,7 @@ public class GameFlowSaga {
 
     @DeadlineHandler(deadlineName = GameDeadline.ROUND_EXPIRED)
     public void onRoundExpired() {
-        if (!player1Answered) {
-            commandGateway.send(new GameCommand.AnswerQuestionCommand(gameId, player1Id, null, answerDeadlineAt));
-        }
-        if (!player2Answered) {
-            commandGateway.send(new GameCommand.AnswerQuestionCommand(gameId, player2Id, null, answerDeadlineAt));
-        }
+        commandGateway.send(new GameCommand.ExpireRoundCommand(gameId, currentRound));
     }
 
     @SagaEventHandler(associationProperty = "gameId")

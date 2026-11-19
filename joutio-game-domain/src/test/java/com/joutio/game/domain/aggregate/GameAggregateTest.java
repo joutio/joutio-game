@@ -104,7 +104,7 @@ class GameAggregateTest {
 
         fixture.given(concat(created(), roundStarted(shownAt)))
                 .when(new GameCommand.AnswerQuestionCommand(
-                        GAME_ID, PLAYER_1, GameQuestionChoice.A, shownAt.plusMillis(500)))
+                        GAME_ID, PLAYER_1, GameRoundType.ROUND_1, GameQuestionChoice.A, shownAt.plusMillis(500)))
                 .expectException(GameExceptions.RoundNotRevealedProblem.class);
     }
 
@@ -187,7 +187,7 @@ class GameAggregateTest {
 
         fixture.given(concat(created(), roundStarted(shownAt), revealed(revealedAt)))
                 .when(new GameCommand.AnswerQuestionCommand(
-                        GAME_ID, PLAYER_1, GameQuestionChoice.A, answeredAt))
+                        GAME_ID, PLAYER_1, GameRoundType.ROUND_1, GameQuestionChoice.A, answeredAt))
                 .expectEventsMatching(JoutioAxonMatchers.hasPayloadMatching(
                         GameEvent.QuestionAnsweredEvent.class,
                         e -> {
@@ -196,6 +196,100 @@ class GameAggregateTest {
                                     && answered.pointsEarned() == 18
                                     && answered.timeMs() == 2000;
                         }));
+    }
+
+    /** Requête perdue puis renvoyée : la réponse déjà enregistrée n'est pas rejouée ni refusée. */
+    @Test
+    void answer_resentForAnAlreadyAnsweredRound_isIgnored() {
+        Instant shownAt = Instant.now();
+        Instant revealedAt = shownAt.plusMillis(GameRules.QUESTION_REVEAL_MS);
+
+        fixture.given(concat(created(), roundStarted(shownAt), revealed(revealedAt),
+                        new GameEvent.QuestionAnsweredEvent(GAME_ID, GameRoundType.ROUND_1, questions().get(0).questionId(),
+                                PLAYER_1, GamePlayerType.HUMAN, GameQuestionChoice.A, true, revealedAt.plusSeconds(2), 18, 2000)))
+                .when(new GameCommand.AnswerQuestionCommand(
+                        GAME_ID, PLAYER_1, GameRoundType.ROUND_1, GameQuestionChoice.A, revealedAt.plusSeconds(3)))
+                .expectNoEvents();
+    }
+
+    /** Renvoi tardif d'une réponse de la manche précédente : jamais appliqué à la manche courante. */
+    @Test
+    void answer_forAnotherRound_isRejected() {
+        Instant shownAt = Instant.now();
+
+        fixture.given(concat(created(), roundStarted(shownAt), revealed(shownAt.plusMillis(GameRules.QUESTION_REVEAL_MS))))
+                .when(new GameCommand.AnswerQuestionCommand(
+                        GAME_ID, PLAYER_1, GameRoundType.ROUND_2, GameQuestionChoice.A, shownAt.plusSeconds(4)))
+                .expectException(GameExceptions.RoundMismatchProblem.class);
+    }
+
+    /** Échéance avant la réponse du bot (deadline en retard sous charge) : le bot garde la réponse tirée. */
+    @Test
+    void expireRound_botGame_recordsTheDrawnBotAnswerAndAnEmptyHumanAnswer() {
+        Instant shownAt = Instant.now();
+        Instant revealedAt = shownAt.plusMillis(GameRules.QUESTION_REVEAL_MS);
+        BotAnswer bot = new BotAnswer(GameQuestionChoice.A, revealedAt.plusSeconds(3));
+        GameEvent.QuestionRevealedEvent revealed = revealedWithBot(revealedAt, bot);
+
+        fixture.given(concat(created(GamePlayerType.BOT, BotDifficulty.NORMAL), roundStarted(shownAt), revealed))
+                .when(new GameCommand.ExpireRoundCommand(GAME_ID, GameRoundType.ROUND_1))
+                .expectEventsMatching(JoutioAxonMatchers.hasPayloadMatching(
+                        GameEvent.QuestionAnsweredEvent.class,
+                        e -> {
+                            GameEvent.QuestionAnsweredEvent answered = (GameEvent.QuestionAnsweredEvent) e;
+                            return answered.playerId().equals(PLAYER_2)
+                                    && answered.choice() == GameQuestionChoice.A
+                                    && answered.correct()
+                                    && answered.answeredAt().equals(bot.answerAt());
+                        }))
+                .expectEventsMatching(JoutioAxonMatchers.hasPayloadMatching(
+                        GameEvent.QuestionAnsweredEvent.class,
+                        e -> {
+                            GameEvent.QuestionAnsweredEvent answered = (GameEvent.QuestionAnsweredEvent) e;
+                            return answered.playerId().equals(PLAYER_1)
+                                    && answered.choice() == null
+                                    && answered.answeredAt().equals(revealed.answerDeadlineAt());
+                        }));
+    }
+
+    @Test
+    void botAnswer_recordsTheDrawnChoiceAtItsInstant() {
+        Instant shownAt = Instant.now();
+        Instant revealedAt = shownAt.plusMillis(GameRules.QUESTION_REVEAL_MS);
+        BotAnswer bot = new BotAnswer(GameQuestionChoice.B, revealedAt.plusSeconds(2));
+
+        fixture.given(concat(created(GamePlayerType.BOT, BotDifficulty.NORMAL), roundStarted(shownAt), revealedWithBot(revealedAt, bot)))
+                .when(new GameCommand.BotAnswerCommand(GAME_ID, GameRoundType.ROUND_1))
+                .expectEventsMatching(JoutioAxonMatchers.singlePayloadMatching(
+                        GameEvent.QuestionAnsweredEvent.class,
+                        e -> {
+                            GameEvent.QuestionAnsweredEvent answered = (GameEvent.QuestionAnsweredEvent) e;
+                            return answered.playerId().equals(PLAYER_2)
+                                    && answered.choice() == GameQuestionChoice.B
+                                    && !answered.correct()
+                                    && answered.timeMs() == 2000;
+                        }));
+    }
+
+    @Test
+    void botAnswer_onceTheBotHasAnswered_isIgnored() {
+        Instant shownAt = Instant.now();
+        Instant revealedAt = shownAt.plusMillis(GameRules.QUESTION_REVEAL_MS);
+        BotAnswer bot = new BotAnswer(GameQuestionChoice.B, revealedAt.plusSeconds(2));
+
+        fixture.given(concat(created(GamePlayerType.BOT, BotDifficulty.NORMAL), roundStarted(shownAt), revealedWithBot(revealedAt, bot),
+                        new GameEvent.QuestionAnsweredEvent(GAME_ID, GameRoundType.ROUND_1, questions().get(0).questionId(),
+                                PLAYER_2, GamePlayerType.BOT, GameQuestionChoice.B, false, bot.answerAt(), 0, 2000)))
+                .when(new GameCommand.BotAnswerCommand(GAME_ID, GameRoundType.ROUND_1))
+                .expectNoEvents();
+    }
+
+    @Test
+    void expireRound_forARoundNoLongerCurrent_isIgnored() {
+        Instant shownAt = Instant.now();
+        fixture.given(concat(created(), roundStarted(shownAt), revealed(shownAt.plusMillis(GameRules.QUESTION_REVEAL_MS))))
+                .when(new GameCommand.ExpireRoundCommand(GAME_ID, GameRoundType.ROUND_2))
+                .expectNoEvents();
     }
 
     // ── Fixtures ──
@@ -295,12 +389,16 @@ class GameAggregateTest {
     }
 
     private GameEvent.QuestionRevealedEvent revealed(Instant revealedAt) {
+        return revealedWithBot(revealedAt, null);
+    }
+
+    private GameEvent.QuestionRevealedEvent revealedWithBot(Instant revealedAt, BotAnswer botAnswer) {
         return new GameEvent.QuestionRevealedEvent(
                 GAME_ID,
                 GameRoundType.ROUND_1,
                 revealedAt,
                 revealedAt.plusSeconds(GameRules.ROUND_TIMEOUT_SECONDS),
-                null
+                botAnswer
         );
     }
 

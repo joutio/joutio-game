@@ -194,42 +194,49 @@ public class GameAggregate {
         requireTimestamp(command.timestamp(), gameId);
 
         GamePlayerAggregate player = resolvePlayer(command.playerId());
+        if (command.round() != currentRound) {
+            throw new GameExceptions.RoundMismatchProblem(gameId, String.valueOf(command.round()), String.valueOf(currentRound));
+        }
         GameRoundAggregate round = rounds.get(currentRound);
 
+        if (round.hasPlayerAnswered(player.getPlayer())) {
+            // Renvoi d'une réponse déjà enregistrée (requête perdue puis rejouée par le client) : sans effet.
+            return;
+        }
         if (!round.isAnswerable()) {
             throw new GameExceptions.RoundNotRevealedProblem(gameId, currentRound.name(), round.getStatus().name());
         }
-        if (round.hasPlayerAnswered(player.getPlayer())) {
-            throw new GameExceptions.RoundAlreadyAnsweredProblem(gameId, currentRound.name(), command.playerId());
+
+        answer(round, player, command.choice(), command.timestamp());
+    }
+
+    @CommandHandler
+    public void handle(GameCommand.BotAnswerCommand command) {
+        GameRoundAggregate round = openRound(command.round());
+        GamePlayerAggregate bot = getPlayer(GamePlayer.PLAYER_2);
+        if (round == null || round.getBotAnswer() == null || round.hasPlayerAnswered(bot.getPlayer())) {
+            return;
         }
+        answer(round, bot, round.getBotAnswer().choice(), round.getBotAnswer().answerAt());
+    }
 
-        Duration timeToAnswer = Duration.between(round.getRevealedAt(), command.timestamp());
-        boolean correct = command.choice() != null && command.choice() == round.getQuestion().correctAnswer();
-
-        int pointsEarned = 0;
-        if (correct) {
-            pointsEarned = GameRules.getBasePoints(currentRound.isBonus())
-                    + GameRules.calculateSpeedBonus(timeToAnswer.toSeconds(), currentRound.isBonus());
+    @CommandHandler
+    public void handle(GameCommand.ExpireRoundCommand command) {
+        GameRoundAggregate round = openRound(command.round());
+        if (round == null) {
+            return;
         }
-
-        long timeMs = round.getRevealedAt() != null
-                ? Math.max(0, Duration.between(round.getRevealedAt(), command.timestamp()).toMillis())
-                : 0;
-
-        apply(
-                new GameEvent.QuestionAnsweredEvent(
-                        gameId,
-                        currentRound,
-                        round.getQuestion().questionId(),
-                        command.playerId(),
-                        player.getPlayerType(),
-                        command.choice(),
-                        correct,
-                        command.timestamp(),
-                        pointsEarned,
-                        timeMs
-                )
-        );
+        for (GamePlayerAggregate player : players.values()) {
+            if (round.hasPlayerAnswered(player.getPlayer())) {
+                continue;
+            }
+            BotAnswer botAnswer = player.getPlayerType() == GamePlayerType.BOT ? round.getBotAnswer() : null;
+            if (botAnswer != null) {
+                answer(round, player, botAnswer.choice(), botAnswer.answerAt());
+            } else {
+                answer(round, player, null, round.getAnswerDeadlineAt());
+            }
+        }
     }
 
     @CommandHandler
@@ -253,6 +260,41 @@ public class GameAggregate {
                         round.getQuestion().correctAnswer(),
                         now,
                         nextRound != null ? now.plusMillis(GameRules.ROUND_TRANSITION_MS) : null
+                )
+        );
+    }
+
+    /** Manche {@code roundType} si c'est la manche courante et qu'elle accepte encore des réponses, sinon {@code null}. */
+    private GameRoundAggregate openRound(GameRoundType roundType) {
+        if (status != GameStatus.IN_PROGRESS || roundType != currentRound) {
+            return null;
+        }
+        GameRoundAggregate round = rounds.get(roundType);
+        return round.isAnswerable() ? round : null;
+    }
+
+    private void answer(GameRoundAggregate round, GamePlayerAggregate player, GameQuestionChoice choice, Instant answeredAt) {
+        Duration timeToAnswer = Duration.between(round.getRevealedAt(), answeredAt);
+        boolean correct = choice != null && choice == round.getQuestion().correctAnswer();
+
+        int pointsEarned = 0;
+        if (correct) {
+            pointsEarned = GameRules.getBasePoints(currentRound.isBonus())
+                    + GameRules.calculateSpeedBonus(timeToAnswer.toSeconds(), currentRound.isBonus());
+        }
+
+        apply(
+                new GameEvent.QuestionAnsweredEvent(
+                        gameId,
+                        currentRound,
+                        round.getQuestion().questionId(),
+                        player.getPlayerId(),
+                        player.getPlayerType(),
+                        choice,
+                        correct,
+                        answeredAt,
+                        pointsEarned,
+                        Math.max(0, timeToAnswer.toMillis())
                 )
         );
     }
@@ -302,7 +344,7 @@ public class GameAggregate {
 
     @EventSourcingHandler
     public void on(GameEvent.QuestionRevealedEvent event) {
-        rounds.get(event.round()).reveal(event.revealedAt(), event.answerDeadlineAt());
+        rounds.get(event.round()).reveal(event.revealedAt(), event.answerDeadlineAt(), event.botAnswer());
     }
 
     @EventSourcingHandler

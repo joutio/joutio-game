@@ -1,3 +1,9 @@
+## [1.4.0](https://github.com/joutio/joutio-game/compare/v1.3.0...v1.4.0) (2026-11-19)
+
+### Features
+
+* **duel:** fair answer time despite latency ([95cd048](https://github.com/joutio/joutio-game/commit/95cd04826ea99a083ed0ca10d1621813559ef6ce))
+
 ## [1.3.0](https://github.com/joutio/joutio-game/compare/v1.2.4...v1.3.0) (2026-11-19)
 
 ### Features

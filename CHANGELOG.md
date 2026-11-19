@@ -1,3 +1,9 @@
+## [1.3.0](https://github.com/joutio/joutio-game/compare/v1.2.4...v1.3.0) (2026-11-19)
+
+### Features
+
+* **question:** localized image description in game questions ([df3cf19](https://github.com/joutio/joutio-game/commit/df3cf19cd81a8e06aac0d1972994ba6000461570))
+
 ## [1.2.4](https://github.com/joutio/joutio-game/compare/v1.2.3...v1.2.4) (2026-11-19)
 
 ### Bug Fixes

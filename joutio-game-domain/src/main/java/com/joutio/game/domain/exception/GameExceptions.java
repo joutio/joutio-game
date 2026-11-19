@@ -110,6 +110,20 @@ public interface GameExceptions {
     /**
      * Une réponse a été reçue avant la révélation des réponses (round pas encore ANSWERABLE).
      */
+    /**
+     * Réponse hors délai : reçue après la grâce de {@code answerDeadlineAt}, ou dont le temps retenu dépasse le chrono.
+     * La manche l'enregistre comme une non-réponse à son expiration.
+     */
+    class AnswerAfterDeadlineProblem extends GameProblem {
+        public AnswerAfterDeadlineProblem(String gameId, String round, long retainedMs) {
+            super(gameId, "urn:joutio:game:answerAfterDeadline",
+                    ProblemCategory.BUSINESS_INVALID_COMMAND,
+                    "Answer after deadline",
+                    "The answer to round " + round + " in game " + gameId + " arrived after the deadline",
+                    Map.of("round", round, "retainedMs", retainedMs));
+        }
+    }
+
     class RoundNotRevealedProblem extends GameProblem {
         public RoundNotRevealedProblem(String gameId, String round, String currentStatus) {
             super(gameId, "urn:joutio:game:roundNotRevealed",

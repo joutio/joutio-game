@@ -91,7 +91,13 @@ public interface GameCommand {
             String playerId,
             GameRoundType round,
             GameQuestionChoice choice,
-            Instant timestamp
+            /** Réception par le BFF. */
+            Instant timestamp,
+            /**
+             * Temps de réflexion mesuré par le client depuis l'affichage réel des réponses (ms), {@code null} s'il
+             * ne l'envoie pas : le temps serveur fait alors foi ({@link GameRules#retainedAnswerMs}).
+             */
+            Long clientElapsedMs
     ) implements GameCommand {
     }
 

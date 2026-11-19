@@ -104,7 +104,7 @@ class GameAggregateTest {
 
         fixture.given(concat(created(), roundStarted(shownAt)))
                 .when(new GameCommand.AnswerQuestionCommand(
-                        GAME_ID, PLAYER_1, GameRoundType.ROUND_1, GameQuestionChoice.A, shownAt.plusMillis(500)))
+                        GAME_ID, PLAYER_1, GameRoundType.ROUND_1, GameQuestionChoice.A, shownAt.plusMillis(500), null))
                 .expectException(GameExceptions.RoundNotRevealedProblem.class);
     }
 
@@ -187,7 +187,7 @@ class GameAggregateTest {
 
         fixture.given(concat(created(), roundStarted(shownAt), revealed(revealedAt)))
                 .when(new GameCommand.AnswerQuestionCommand(
-                        GAME_ID, PLAYER_1, GameRoundType.ROUND_1, GameQuestionChoice.A, answeredAt))
+                        GAME_ID, PLAYER_1, GameRoundType.ROUND_1, GameQuestionChoice.A, answeredAt, null))
                 .expectEventsMatching(JoutioAxonMatchers.hasPayloadMatching(
                         GameEvent.QuestionAnsweredEvent.class,
                         e -> {
@@ -195,6 +195,69 @@ class GameAggregateTest {
                             return answered.correct()
                                     && answered.pointsEarned() == 18
                                     && answered.timeMs() == 2000;
+                        }));
+    }
+
+    /** Latence montante : le temps déclaré par le client fait foi, borné par le temps serveur. */
+    @Test
+    void answer_retainsTheClientTimeBoundedByTheServerTime() {
+        Instant shownAt = Instant.now();
+        Instant revealedAt = shownAt.plusMillis(GameRules.QUESTION_REVEAL_MS);
+        Instant receivedAt = revealedAt.plusMillis(2400);
+
+        assertAnsweredIn(revealedAt, receivedAt, 2000L, 2000);
+        // Le client ne peut pas se déclarer plus lent que le serveur ne l'a vu…
+        assertAnsweredIn(revealedAt, receivedAt, 3000L, 2400);
+        // …ni plus rapide qu'un humain : la triche ne gagne pas plus que la latence.
+        assertAnsweredIn(revealedAt, receivedAt, 10L, (int) GameRules.MIN_HUMAN_ANSWER_MS);
+        // Client sans mesure : le temps serveur.
+        assertAnsweredIn(revealedAt, receivedAt, null, 2400);
+    }
+
+    /** Réponse partie à temps mais arrivée pendant la grâce : acceptée avec le temps du client. */
+    @Test
+    void answer_withinTheGrace_isAcceptedWhenTheClientTimeFitsTheRound() {
+        Instant shownAt = Instant.now();
+        Instant revealedAt = shownAt.plusMillis(GameRules.QUESTION_REVEAL_MS);
+        Instant receivedAt = revealedAt.plusMillis(GameRules.ROUND_TIMEOUT_SECONDS * 1000 + 600);
+
+        assertAnsweredIn(revealedAt, receivedAt, 9_700L, 9_700);
+    }
+
+    @Test
+    void answer_afterTheGrace_isRejected() {
+        Instant shownAt = Instant.now();
+        Instant revealedAt = shownAt.plusMillis(GameRules.QUESTION_REVEAL_MS);
+        Instant receivedAt = revealedAt.plusMillis(GameRules.ROUND_TIMEOUT_SECONDS * 1000 + GameRules.ANSWER_GRACE_MS + 1);
+
+        fixture.given(concat(created(), roundStarted(shownAt), revealed(revealedAt)))
+                .when(new GameCommand.AnswerQuestionCommand(
+                        GAME_ID, PLAYER_1, GameRoundType.ROUND_1, GameQuestionChoice.A, receivedAt, 5_000L))
+                .expectException(GameExceptions.AnswerAfterDeadlineProblem.class);
+    }
+
+    @Test
+    void answer_withinTheGraceButOverTheRound_isRejected() {
+        Instant shownAt = Instant.now();
+        Instant revealedAt = shownAt.plusMillis(GameRules.QUESTION_REVEAL_MS);
+        Instant receivedAt = revealedAt.plusMillis(GameRules.ROUND_TIMEOUT_SECONDS * 1000 + 500);
+
+        fixture.given(concat(created(), roundStarted(shownAt), revealed(revealedAt)))
+                .when(new GameCommand.AnswerQuestionCommand(
+                        GAME_ID, PLAYER_1, GameRoundType.ROUND_1, GameQuestionChoice.A, receivedAt, 10_300L))
+                .expectException(GameExceptions.AnswerAfterDeadlineProblem.class);
+    }
+
+    private void assertAnsweredIn(Instant revealedAt, Instant receivedAt, Long clientElapsedMs, int expectedMs) {
+        fixture.given(concat(created(), roundStarted(revealedAt.minusMillis(GameRules.QUESTION_REVEAL_MS)), revealed(revealedAt)))
+                .when(new GameCommand.AnswerQuestionCommand(
+                        GAME_ID, PLAYER_1, GameRoundType.ROUND_1, GameQuestionChoice.A, receivedAt, clientElapsedMs))
+                .expectEventsMatching(JoutioAxonMatchers.hasPayloadMatching(
+                        GameEvent.QuestionAnsweredEvent.class,
+                        e -> {
+                            GameEvent.QuestionAnsweredEvent answered = (GameEvent.QuestionAnsweredEvent) e;
+                            return answered.timeMs() == expectedMs
+                                    && answered.answeredAt().equals(revealedAt.plusMillis(expectedMs));
                         }));
     }
 
@@ -208,7 +271,7 @@ class GameAggregateTest {
                         new GameEvent.QuestionAnsweredEvent(GAME_ID, GameRoundType.ROUND_1, questions().get(0).questionId(),
                                 PLAYER_1, GamePlayerType.HUMAN, GameQuestionChoice.A, true, revealedAt.plusSeconds(2), 18, 2000)))
                 .when(new GameCommand.AnswerQuestionCommand(
-                        GAME_ID, PLAYER_1, GameRoundType.ROUND_1, GameQuestionChoice.A, revealedAt.plusSeconds(3)))
+                        GAME_ID, PLAYER_1, GameRoundType.ROUND_1, GameQuestionChoice.A, revealedAt.plusSeconds(3), null))
                 .expectNoEvents();
     }
 
@@ -219,7 +282,7 @@ class GameAggregateTest {
 
         fixture.given(concat(created(), roundStarted(shownAt), revealed(shownAt.plusMillis(GameRules.QUESTION_REVEAL_MS))))
                 .when(new GameCommand.AnswerQuestionCommand(
-                        GAME_ID, PLAYER_1, GameRoundType.ROUND_2, GameQuestionChoice.A, shownAt.plusSeconds(4)))
+                        GAME_ID, PLAYER_1, GameRoundType.ROUND_2, GameQuestionChoice.A, shownAt.plusSeconds(4), null))
                 .expectException(GameExceptions.RoundMismatchProblem.class);
     }
 

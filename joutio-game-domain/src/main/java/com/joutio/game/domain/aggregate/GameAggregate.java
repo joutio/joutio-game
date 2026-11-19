@@ -207,7 +207,14 @@ public class GameAggregate {
             throw new GameExceptions.RoundNotRevealedProblem(gameId, currentRound.name(), round.getStatus().name());
         }
 
-        answer(round, player, command.choice(), command.timestamp());
+        long serverElapsedMs = Duration.between(round.getRevealedAt(), command.timestamp()).toMillis();
+        long retainedMs = GameRules.retainedAnswerMs(command.clientElapsedMs(), serverElapsedMs);
+        boolean late = command.timestamp().isAfter(round.getAnswerDeadlineAt().plusMillis(GameRules.ANSWER_GRACE_MS))
+                || retainedMs > GameRules.ROUND_TIMEOUT_SECONDS * 1000;
+        if (late) {
+            throw new GameExceptions.AnswerAfterDeadlineProblem(gameId, currentRound.name(), retainedMs);
+        }
+        answer(round, player, command.choice(), round.getRevealedAt().plusMillis(retainedMs));
     }
 
     @CommandHandler

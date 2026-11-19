@@ -56,8 +56,20 @@ class GameFlowSagaTest {
 
         fixture.givenAPublished(gameCreated(GamePlayerType.HUMAN))
                 .andThenAPublished(revealed)
-                .whenTimeAdvancesTo(revealed.answerDeadlineAt())
+                // L'expiration attend la grâce des réponses retardées par le réseau.
+                .whenTimeAdvancesTo(revealed.answerDeadlineAt().plusMillis(GameRules.ANSWER_GRACE_MS))
                 .expectDispatchedCommands(new GameCommand.ExpireRoundCommand(GAME_ID, GameRoundType.ROUND_1));
+    }
+
+    @Test
+    void roundExpiry_waitsForTheAnswerGrace() {
+        Instant revealedAt = fixture.currentTime();
+        GameEvent.QuestionRevealedEvent revealed = revealed(revealedAt, null);
+
+        fixture.givenAPublished(gameCreated(GamePlayerType.HUMAN))
+                .andThenAPublished(revealed)
+                .whenTimeAdvancesTo(revealed.answerDeadlineAt())
+                .expectNoDispatchedCommands();
     }
 
     /**
@@ -72,10 +84,10 @@ class GameFlowSagaTest {
 
         fixture.givenAPublished(gameCreated(GamePlayerType.BOT))
                 .andThenAPublished(revealed)
-                .whenTimeAdvancesTo(revealed.answerDeadlineAt())
+                .whenTimeAdvancesTo(revealed.answerDeadlineAt().plusMillis(GameRules.ANSWER_GRACE_MS))
                 .expectDispatchedCommands(
-                        new GameCommand.ExpireRoundCommand(GAME_ID, GameRoundType.ROUND_1),
-                        new GameCommand.BotAnswerCommand(GAME_ID, GameRoundType.ROUND_1));
+                        new GameCommand.BotAnswerCommand(GAME_ID, GameRoundType.ROUND_1),
+                        new GameCommand.ExpireRoundCommand(GAME_ID, GameRoundType.ROUND_1));
     }
 
     private GameEvent.GameCreatedEvent gameCreated(GamePlayerType player2Type) {

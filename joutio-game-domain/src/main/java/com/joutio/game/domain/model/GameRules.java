@@ -60,6 +60,29 @@ public final class GameRules {
     public static final long ROUND_TRANSITION_MS = 4400;
 
     /**
+     * Grâce (ms) après {@code answerDeadlineAt} : une réponse partie à temps mais retardée par le réseau est acceptée
+     * si le temps déclaré tient dans le chrono. L'expiration de la manche attend cette grâce.
+     */
+    public static final long ANSWER_GRACE_MS = 1000;
+
+    /** Temps de réponse minimal retenu (ms) : en deçà, aucun humain n'a lu et choisi une réponse. */
+    public static final long MIN_HUMAN_ANSWER_MS = 250;
+
+    /**
+     * Temps de réponse retenu (ms) : le temps déclaré par le client ({@code clientElapsedMs}, depuis l'affichage réel
+     * des réponses), borné entre {@link #MIN_HUMAN_ANSWER_MS} et le temps mesuré par le serveur (révélation →
+     * réception). La latence montante ne coûte donc plus de temps au joueur, et une triche ne peut gagner plus que
+     * cette latence. Sans temps client, le temps serveur fait foi.
+     */
+    public static long retainedAnswerMs(Long clientElapsedMs, long serverElapsedMs) {
+        long server = Math.max(0, serverElapsedMs);
+        if (clientElapsedMs == null) {
+            return server;
+        }
+        return Math.min(server, Math.max(Math.min(MIN_HUMAN_ANSWER_MS, server), clientElapsedMs));
+    }
+
+    /**
      * Seuil (secondes) d'une réponse « éclair » (badge Éclair).
      */
     public static final long FAST_ANSWER_SECONDS = 3;

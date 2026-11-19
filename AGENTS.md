@@ -27,10 +27,15 @@ Lire : `../../AGENTS.md`, [`docs/backend/axon.md`](../../docs/backend/axon.md), 
   1. `StartRoundCommand` ;
   2. `QUESTION_REVEAL` → `RevealQuestionCommand` ;
   3. réponses (`AnswerQuestionCommand(round)`, idempotente : un renvoi pour une manche déjà répondue est sans effet,
-     une autre manche → `RoundMismatchProblem`). Le choix et l'instant du bot sont tirés par l'agrégat à la révélation
+     une autre manche → `RoundMismatchProblem`).
+     **Temps retenu** (`GameRules.retainedAnswerMs`) : `clientElapsedMs` (mesuré par le client depuis l'affichage des
+     réponses) borné entre 250 ms et le temps serveur (révélation → réception par le BFF) ; sans lui, le temps
+     serveur. La latence montante ne coûte rien au joueur et une triche ne gagne pas plus que sa latence. Réponse reçue
+     après `answerDeadlineAt` + 1 s (`ANSWER_GRACE_MS`), ou dont le temps retenu dépasse 10 s →
+     `AnswerAfterDeadlineProblem`. Le choix et l'instant du bot sont tirés par l'agrégat à la révélation
      (`BotAnswer` dans `QuestionRevealedEvent`) et gardés par la manche ; `BOT_ANSWERS` envoie
      `BotAnswerCommand(round)` ;
-  4. `ROUND_EXPIRED` à 10 s envoie `ExpireRoundCommand(round)` : l'agrégat enregistre chaque réponse manquante, celle
+  4. `ROUND_EXPIRED` à 10 s + la grâce d'1 s envoie `ExpireRoundCommand(round)` : l'agrégat enregistre chaque réponse manquante, celle
      du bot telle que tirée, une non-réponse humaine comptant comme fausse. Ces deux commandes sont idempotentes et
      sans effet hors de la manche courante : une deadline en retard ne fait plus perdre la réponse du bot ;
   5. `CloseRoundCommand`, puis `NEXT_ROUND_STARTS`.

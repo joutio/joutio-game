@@ -154,8 +154,9 @@ public class GameFlowSaga {
         this.currentRound = event.round();
         this.answersInCurrentRound = 0;
 
+        // L'expiration attend la grâce : une réponse partie à temps mais retardée par le réseau peut encore arriver.
         roundDeadlineId = deadlineManager.schedule(
-                event.answerDeadlineAt(),
+                event.answerDeadlineAt().plusMillis(GameRules.ANSWER_GRACE_MS),
                 GameDeadline.ROUND_EXPIRED
         );
 

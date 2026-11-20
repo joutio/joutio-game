@@ -1,3 +1,9 @@
+## [1.4.3](https://github.com/joutio/joutio-game/compare/v1.4.2...v1.4.3) (2026-11-20)
+
+### Bug Fixes
+
+* **deps:** joutio-parent 2.3.0, readiness waits for instance-scoped processors ([2ab8e15](https://github.com/joutio/joutio-game/commit/2ab8e15642324d07f39595acefb4ceb3b63694ee))
+
 ## [1.4.2](https://github.com/joutio/joutio-game/compare/v1.4.1...v1.4.2) (2026-11-20)
 
 ### Bug Fixes

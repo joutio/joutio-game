@@ -1,3 +1,9 @@
+## [1.4.4](https://github.com/joutio/joutio-game/compare/v1.4.3...v1.4.4) (2026-11-20)
+
+### Bug Fixes
+
+* **deps:** joutio-parent 2.4.0, instance-scoped groups on one Kafka consumer per pod ([0446255](https://github.com/joutio/joutio-game/commit/04462551bf5fefd4ab3b32575e125e811c764e73))
+
 ## [1.4.3](https://github.com/joutio/joutio-game/compare/v1.4.2...v1.4.3) (2026-11-20)
 
 ### Bug Fixes

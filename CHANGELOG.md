@@ -1,3 +1,9 @@
+## [1.4.2](https://github.com/joutio/joutio-game/compare/v1.4.1...v1.4.2) (2026-11-20)
+
+### Bug Fixes
+
+* **deps:** joutio-parent 2.2.1, distinct Kafka consumer metrics ([ebea304](https://github.com/joutio/joutio-game/commit/ebea304e0ff2c27ebe35d53568d0cd6f69ac78b0))
+
 ## [1.4.1](https://github.com/joutio/joutio-game/compare/v1.4.0...v1.4.1) (2026-11-20)
 
 ### Bug Fixes

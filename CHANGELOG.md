@@ -1,3 +1,9 @@
+## [1.5.0](https://github.com/joutio/joutio-game/compare/v1.4.4...v1.5.0) (2026-11-20)
+
+### Features
+
+* **game:** start the answer timer after the answers appear ([4b4a69f](https://github.com/joutio/joutio-game/commit/4b4a69f8b920f6746c9d46d0e7bf16c22d683263))
+
 ## [1.4.4](https://github.com/joutio/joutio-game/compare/v1.4.3...v1.4.4) (2026-11-20)
 
 ### Bug Fixes

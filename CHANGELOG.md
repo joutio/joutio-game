@@ -1,3 +1,9 @@
+## [1.5.1](https://github.com/joutio/joutio-game/compare/v1.5.0...v1.5.1) (2026-11-20)
+
+### Bug Fixes
+
+* **docker:** rebuild on patched base images ([e723c03](https://github.com/joutio/joutio-game/commit/e723c03149bd7af75fc25824e00c14e7b534bad4))
+
 ## [1.5.0](https://github.com/joutio/joutio-game/compare/v1.4.4...v1.5.0) (2026-11-20)
 
 ### Features

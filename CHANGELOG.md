@@ -1,3 +1,9 @@
+## [1.5.2](https://github.com/joutio/joutio-game/compare/v1.5.1...v1.5.2) (2026-11-20)
+
+### Performance Improvements
+
+* **docker:** JDK 25 AOT cache at startup ([7c5a657](https://github.com/joutio/joutio-game/commit/7c5a657fefbee068618a964b311f1aae8184b13e))
+
 ## [1.5.1](https://github.com/joutio/joutio-game/compare/v1.5.0...v1.5.1) (2026-11-20)
 
 ### Bug Fixes

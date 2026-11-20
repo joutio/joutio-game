@@ -47,6 +47,17 @@ public final class GameRules {
     public static final long QUESTION_REVEAL_MS = 2000;
 
     /**
+     * Durée (ms) de l'apparition des 4 réponses après la révélation : 3 × 120 ms de décalage + 500 ms d'entrée
+     * ({@code ANSWERS_APPEAR_MS} de {@code @joutio/client}, à garder égales). Les réponses se cliquent dès leur
+     * entrée, mais le chrono de {@link #ROUND_TIMEOUT_SECONDS} ne part qu'à la fin de l'apparition :
+     * {@code answerDeadlineAt = revealedAt + ANSWERS_APPEAR_MS + ROUND_TIMEOUT_SECONDS}.
+     */
+    public static final long ANSWERS_APPEAR_MS = 860;
+
+    /** Temps de réponse maximal (ms), mesuré depuis la révélation : apparition des réponses + chrono. */
+    public static final long ANSWER_WINDOW_MS = ANSWERS_APPEAR_MS + ROUND_TIMEOUT_SECONDS * 1000;
+
+    /**
      * Délai serveur (ms) avant le premier round : écran VS + transition + intro de tour.
      * Le serveur reste propriétaire de la transition et l'expose via {@code firstRoundAt}.
      * Aligné sur la maquette : VS (2700) + swoosh (1450) + intro de tour (1900) = 6050.

@@ -4,7 +4,7 @@ import java.time.Duration;
 
 import static com.joutio.game.domain.model.GameRules.GAME_TIMEOUT_HOURS;
 import static com.joutio.game.domain.model.GameRules.QUESTION_REVEAL_MS;
-import static com.joutio.game.domain.model.GameRules.ROUND_TIMEOUT_SECONDS;
+import static com.joutio.game.domain.model.GameRules.ANSWER_WINDOW_MS;
 
 /**
  * Noms et durées des deadlines d'une partie.
@@ -37,7 +37,7 @@ public interface GameDeadline {
     Duration QUESTION_REVEAL_TIMEOUT = Duration.ofMillis(QUESTION_REVEAL_MS);
 
     String ROUND_EXPIRED = "round-expired";
-    Duration ROUND_EXPIRED_TIMEOUT = Duration.ofSeconds(ROUND_TIMEOUT_SECONDS);
+    Duration ROUND_EXPIRED_TIMEOUT = Duration.ofMillis(ANSWER_WINDOW_MS);
 
     /** Transition vers le premier round (écran VS + intro) — durée portée par {@code firstRoundAt}. */
     String MATCH_INTRO = "match-intro";

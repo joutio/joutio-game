@@ -180,7 +180,7 @@ public class GameAggregate {
                         gameId,
                         currentRound,
                         now,
-                        now.plusSeconds(GameRules.ROUND_TIMEOUT_SECONDS),
+                        now.plusMillis(GameRules.ANSWER_WINDOW_MS),
                         botAnswer
                 )
         );
@@ -210,7 +210,7 @@ public class GameAggregate {
         long serverElapsedMs = Duration.between(round.getRevealedAt(), command.timestamp()).toMillis();
         long retainedMs = GameRules.retainedAnswerMs(command.clientElapsedMs(), serverElapsedMs);
         boolean late = command.timestamp().isAfter(round.getAnswerDeadlineAt().plusMillis(GameRules.ANSWER_GRACE_MS))
-                || retainedMs > GameRules.ROUND_TIMEOUT_SECONDS * 1000;
+                || retainedMs > GameRules.ANSWER_WINDOW_MS;
         if (late) {
             throw new GameExceptions.AnswerAfterDeadlineProblem(gameId, currentRound.name(), retainedMs);
         }

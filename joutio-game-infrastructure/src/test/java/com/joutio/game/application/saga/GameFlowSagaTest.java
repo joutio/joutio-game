@@ -79,7 +79,7 @@ class GameFlowSagaTest {
     @Test
     void lateBotDeadline_stillOnlyExpiresTheRound() {
         Instant revealedAt = fixture.currentTime();
-        BotAnswer bot = new BotAnswer(GameQuestionChoice.C, revealedAt.plusSeconds(GameRules.ROUND_TIMEOUT_SECONDS));
+        BotAnswer bot = new BotAnswer(GameQuestionChoice.C, revealedAt.plusMillis(GameRules.ANSWER_WINDOW_MS));
         GameEvent.QuestionRevealedEvent revealed = revealed(revealedAt, bot);
 
         fixture.givenAPublished(gameCreated(GamePlayerType.BOT))
@@ -112,7 +112,7 @@ class GameFlowSagaTest {
                 GAME_ID,
                 GameRoundType.ROUND_1,
                 revealedAt,
-                revealedAt.plusSeconds(GameRules.ROUND_TIMEOUT_SECONDS),
+                revealedAt.plusMillis(GameRules.ANSWER_WINDOW_MS),
                 botAnswer
         );
     }

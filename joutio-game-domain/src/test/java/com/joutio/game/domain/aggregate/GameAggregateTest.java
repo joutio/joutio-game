@@ -219,16 +219,25 @@ class GameAggregateTest {
     void answer_withinTheGrace_isAcceptedWhenTheClientTimeFitsTheRound() {
         Instant shownAt = Instant.now();
         Instant revealedAt = shownAt.plusMillis(GameRules.QUESTION_REVEAL_MS);
-        Instant receivedAt = revealedAt.plusMillis(GameRules.ROUND_TIMEOUT_SECONDS * 1000 + 600);
+        Instant receivedAt = revealedAt.plusMillis(GameRules.ANSWER_WINDOW_MS + 600);
 
         assertAnsweredIn(revealedAt, receivedAt, 9_700L, 9_700);
+    }
+
+    /** Le chrono part après l'apparition des réponses : 10,5 s après la révélation reste dans la manche. */
+    @Test
+    void answer_afterTenSecondsButWithinTheAppearance_isAccepted() {
+        Instant revealedAt = Instant.now();
+        Instant receivedAt = revealedAt.plusMillis(10_600);
+
+        assertAnsweredIn(revealedAt, receivedAt, 10_500L, 10_500);
     }
 
     @Test
     void answer_afterTheGrace_isRejected() {
         Instant shownAt = Instant.now();
         Instant revealedAt = shownAt.plusMillis(GameRules.QUESTION_REVEAL_MS);
-        Instant receivedAt = revealedAt.plusMillis(GameRules.ROUND_TIMEOUT_SECONDS * 1000 + GameRules.ANSWER_GRACE_MS + 1);
+        Instant receivedAt = revealedAt.plusMillis(GameRules.ANSWER_WINDOW_MS + GameRules.ANSWER_GRACE_MS + 1);
 
         fixture.given(concat(created(), roundStarted(shownAt), revealed(revealedAt)))
                 .when(new GameCommand.AnswerQuestionCommand(
@@ -240,11 +249,11 @@ class GameAggregateTest {
     void answer_withinTheGraceButOverTheRound_isRejected() {
         Instant shownAt = Instant.now();
         Instant revealedAt = shownAt.plusMillis(GameRules.QUESTION_REVEAL_MS);
-        Instant receivedAt = revealedAt.plusMillis(GameRules.ROUND_TIMEOUT_SECONDS * 1000 + 500);
+        Instant receivedAt = revealedAt.plusMillis(GameRules.ANSWER_WINDOW_MS + 500);
 
         fixture.given(concat(created(), roundStarted(shownAt), revealed(revealedAt)))
                 .when(new GameCommand.AnswerQuestionCommand(
-                        GAME_ID, PLAYER_1, GameRoundType.ROUND_1, GameQuestionChoice.A, receivedAt, 10_300L))
+                        GAME_ID, PLAYER_1, GameRoundType.ROUND_1, GameQuestionChoice.A, receivedAt, GameRules.ANSWER_WINDOW_MS + 300))
                 .expectException(GameExceptions.AnswerAfterDeadlineProblem.class);
     }
 
@@ -460,7 +469,7 @@ class GameAggregateTest {
                 GAME_ID,
                 GameRoundType.ROUND_1,
                 revealedAt,
-                revealedAt.plusSeconds(GameRules.ROUND_TIMEOUT_SECONDS),
+                revealedAt.plusMillis(GameRules.ANSWER_WINDOW_MS),
                 botAnswer
         );
     }

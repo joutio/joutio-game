@@ -1,3 +1,9 @@
+## [1.5.3](https://github.com/joutio/joutio-game/compare/v1.5.2...v1.5.3) (2026-11-20)
+
+### Bug Fixes
+
+* **deps:** joutio-parent 2.4.1 with patched dependencies ([064d415](https://github.com/joutio/joutio-game/commit/064d4152e1da7f8c9e6f698dc7107ff426536863))
+
 ## [1.5.2](https://github.com/joutio/joutio-game/compare/v1.5.1...v1.5.2) (2026-11-20)
 
 ### Performance Improvements

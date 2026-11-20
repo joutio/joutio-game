@@ -1,3 +1,9 @@
+## [1.4.1](https://github.com/joutio/joutio-game/compare/v1.4.0...v1.4.1) (2026-11-20)
+
+### Bug Fixes
+
+* **deps:** joutio-parent 2.2.0, kafka consumer, segment and rebalancer metrics ([d0f654f](https://github.com/joutio/joutio-game/commit/d0f654ffeea8f4be6cc38cd32aeea4890463fb12))
+
 ## [1.4.0](https://github.com/joutio/joutio-game/compare/v1.3.0...v1.4.0) (2026-11-19)
 
 ### Features

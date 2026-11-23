@@ -1,3 +1,9 @@
+## [1.6.0](https://github.com/joutio/joutio-game/compare/v1.5.3...v1.6.0) (2026-11-23)
+
+### Features
+
+* **result:** snapshot question content in round projection for round review ([a4a39f6](https://github.com/joutio/joutio-game/commit/a4a39f686094294f0074e6e91d4d3d3b9bc3f6de))
+
 ## [1.5.3](https://github.com/joutio/joutio-game/compare/v1.5.2...v1.5.3) (2026-11-20)
 
 ### Bug Fixes

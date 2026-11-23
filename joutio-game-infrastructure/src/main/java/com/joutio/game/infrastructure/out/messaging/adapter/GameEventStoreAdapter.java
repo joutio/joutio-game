@@ -2,7 +2,7 @@ package com.joutio.game.infrastructure.out.messaging.adapter;
 
 import com.joutio.game.domain.event.GameEvent;
 import com.joutio.game.domain.port.out.GameEventStorePort;
-import com.joutio.microservice.core.domain.model.notification.EventEnvelope;
+import com.joutio.microservice.core.domain.model.event.EventEnvelope;
 import org.axonframework.eventhandling.DomainEventMessage;
 import org.axonframework.eventsourcing.eventstore.DomainEventStream;
 import org.axonframework.eventsourcing.eventstore.EventStore;

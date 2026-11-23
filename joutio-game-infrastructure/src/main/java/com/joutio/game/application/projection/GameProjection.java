@@ -3,11 +3,13 @@ package com.joutio.game.application.projection;
 import com.joutio.game.domain.event.GameEvent;
 import com.joutio.game.domain.model.Game;
 import com.joutio.game.domain.model.GameQuestion;
+import com.joutio.game.domain.model.GameQuestionContent;
 import com.joutio.game.domain.model.GameRoundType;
 import com.joutio.game.domain.model.GameRound;
 import com.joutio.game.domain.model.GameRoundStatus;
 import com.joutio.game.domain.model.GameStatus;
 import com.joutio.game.domain.port.out.GameRepositoryPort;
+import com.joutio.microservice.core.domain.model.i18n.Language;
 import org.axonframework.config.ProcessingGroup;
 import org.axonframework.eventhandling.EventHandler;
 import org.slf4j.Logger;
@@ -42,11 +44,17 @@ public class GameProjection {
         List<GameRound> rounds = java.util.stream.IntStream.range(0, questions.size())
                 .mapToObj(index -> {
                     GameQuestion question = questions.get(index);
+                    GameQuestionContent content = question.content(Language.FR);
                     return GameRound.builder()
                             .round(allRounds[index])
                             .questionId(question.questionId())
-                            .questionText(question.text())
+                            .questionText(content.text())
                             .correctAnswer(question.correctAnswer())
+                            .answers(content.answers())
+                            .translations(question.translations())
+                            .imageUrl(question.imageUrl())
+                            .imageAlt(content.imageAlt())
+                            .difficulty(question.difficulty())
                             .status(GameRoundStatus.CREATED)
                             .build();
                 })

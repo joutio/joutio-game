@@ -6,6 +6,8 @@ import com.joutio.game.domain.model.GameRoundStatus;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.time.Instant;
 
@@ -69,4 +71,21 @@ public class GameRoundEntity {
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 20)
     private GameRoundStatus status;
+
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "answers", nullable = false)
+    private String answersJson;
+
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "translations", nullable = false)
+    private String translationsJson;
+
+    @Column(name = "image_url", length = 2048)
+    private String imageUrl;
+
+    @Column(name = "image_alt", length = 2048)
+    private String imageAlt;
+
+    @Column(name = "difficulty", length = 32)
+    private String difficulty;
 }

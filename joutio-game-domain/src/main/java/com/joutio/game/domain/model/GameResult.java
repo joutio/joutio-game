@@ -2,6 +2,8 @@ package com.joutio.game.domain.model;
 
 import com.joutio.game.domain.exception.GameExceptions;
 
+import java.util.List;
+
 import static java.util.Objects.isNull;
 
 /**
@@ -31,7 +33,9 @@ public record GameResult(
         /** Elo du joueur au moment de la création de la partie (null pour les anciens événements). */
         Integer myRating,
         /** Elo de l'adversaire au moment de la création de la partie (null pour les anciens événements). */
-        Integer opponentRating
+        Integer opponentRating,
+        /** Manches closes dans l'ordre, avec le snapshot de question (revue des manches). */
+        List<GameRound> rounds
 ) {
 
     /**
@@ -80,6 +84,10 @@ public record GameResult(
         PlayerProgressSnapshot myProgress = isPlayer1 ? game.player1Progress() : game.player2Progress();
         PlayerProgressSnapshot opponentProgress = isPlayer1 ? game.player2Progress() : game.player1Progress();
 
+        List<GameRound> closedRounds = game.rounds().stream()
+                .filter(round -> round.status() == GameRoundStatus.CLOSED)
+                .toList();
+
         return new GameResult(
                 game.gameId(),
                 game.topicId(),
@@ -101,7 +109,8 @@ public record GameResult(
                 answeredRounds,
                 game.rounds().size(),
                 myProgress == null ? null : myProgress.rating(),
-                opponentProgress == null ? null : opponentProgress.rating()
+                opponentProgress == null ? null : opponentProgress.rating(),
+                closedRounds
         );
     }
 }

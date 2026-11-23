@@ -1,6 +1,6 @@
 package com.joutio.game.application.handler.query;
 
-import com.joutio.microservice.core.domain.model.notification.EventEnvelope;
+import com.joutio.microservice.core.domain.model.event.EventEnvelope;
 import com.joutio.microservice.core.infrastructure.in.api.response.SearchResponse;
 import com.joutio.game.domain.exception.GameExceptions;
 import com.joutio.game.domain.model.Game;

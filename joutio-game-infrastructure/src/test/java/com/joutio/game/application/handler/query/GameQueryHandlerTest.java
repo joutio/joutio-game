@@ -88,7 +88,8 @@ class GameQueryHandlerTest {
 
     @Test
     void game_result_computes_score_breakdown_with_bonus_round() {
-        when(repository.findById("game-1")).thenReturn(Optional.of(finishedGame()));
+        Game game = finishedGame();
+        when(repository.findById("game-1")).thenReturn(Optional.of(game));
 
         GameResult result = handler.handle(new GameQuery.GetGameResultQuery("game-1", "player-1"));
 
@@ -96,7 +97,7 @@ class GameQueryHandlerTest {
                 "game-1", "topic-1", "player-1", "Alpha", "player-2", "Bravo",
                 "player-1", "player-2", 48, 10, "player-1", false,
                 null,
-                30, 26, 2, 2, 3, 3, null, null);
+                30, 26, 2, 2, 3, 3, null, null, game.rounds());
         assertEquals(expected, result);
     }
 

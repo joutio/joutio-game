@@ -29,6 +29,9 @@ joutio:
     # répliques par le rééquilibreur du SDK. Appliqué à la création du token (base vierge).
     # Un segment par réplique : chaque segment, même au repos, coûte une transaction par
     # `joutio.axon.event-availability-timeout`. N'en ajouter que si un lag est mesuré.
+    # Flux de partie en vue vivante (GameLiveStreamHandler) : dans l'unité de travail de la commande, sans Kafka.
+    local-groups:
+      - game-live
     processors:
       game-flow-saga:
         segments: 2

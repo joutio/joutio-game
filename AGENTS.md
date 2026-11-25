@@ -61,11 +61,11 @@ Lire : `../../AGENTS.md`, [`docs/backend/axon.md`](../../docs/backend/axon.md), 
 | `GetActiveGamesQuery(playerId)` | parties `IN_PROGRESS`, liste vide si aucune |
 | `GetPlayerGamesQuery(playerId, topicId, opponentId, opponentType, outcome, sort, page, size)` | historique filtré, `outcome` relatif au joueur interrogé |
 | `GetPopularTopicsQuery(since, limit)` | sujets les plus joués sur une fenêtre |
-| `GetGameEventsQuery(gameId)` | événements de la partie en `EventEnvelope` (via `GameEventStorePort` et son adaptateur) ; le mapping web est fait par le BFF |
+| `GetGameEventsQuery(gameId)` | événements de la partie en `EventEnvelope` (via `GameEventStorePort` et son adaptateur) ; le mapping web est fait par le BFF. **Vue vivante** : `GameLiveStreamHandler` (groupe local `game-live`, `joutio.axon.local-groups`) émet chaque événement aux abonnés de la même partie, dans l'unité de travail de la commande |
 | `GetGameResultQuery(gameId, playerId)` | composition du résultat, manches closes comprises : la projection `round_entry` porte un **snapshot** de question (`answers`, `translations`, `image_url`, `image_alt`, `difficulty`) figé à la création — la revue montre la question telle qu'elle a été jouée, pas son état actuel dans theme |
 | `GetPlayedQuestionIdsQuery(topicId, playerIds)` | questions déjà affichées aux joueurs (préparation de salle) |
 
-Événements consommés ailleurs : `GameCreatedEvent` (theme, BFF), `QuestionAnsweredEvent`
+Événements consommés ailleurs : `GameCreatedEvent` (theme), `QuestionAnsweredEvent`
 (difficulté dans theme), `GameEndedEvent` (profile, leaderboard, matchmaking).
 
 ## Commandes

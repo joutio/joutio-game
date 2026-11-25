@@ -1,3 +1,9 @@
+## [1.7.0](https://github.com/joutio/joutio-game/compare/v1.6.2...v1.7.0) (2026-11-25)
+
+### Features
+
+* **game:** serve the game event stream as a live view ([e7b2e73](https://github.com/joutio/joutio-game/commit/e7b2e73a059eea027c0f8473a5aef1d70a8650e9))
+
 ## [1.6.2](https://github.com/joutio/joutio-game/compare/v1.6.1...v1.6.2) (2026-11-25)
 
 ### Bug Fixes

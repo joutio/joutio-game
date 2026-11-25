@@ -1,3 +1,9 @@
+## [1.6.2](https://github.com/joutio/joutio-game/compare/v1.6.1...v1.6.2) (2026-11-25)
+
+### Bug Fixes
+
+* **deps:** joutio-parent 3.2.0 with the gRPC query bus ([c874a02](https://github.com/joutio/joutio-game/commit/c874a02af30e0edfc688d26016d2beabf0979801))
+
 ## [1.6.1](https://github.com/joutio/joutio-game/compare/v1.6.0...v1.6.1) (2026-11-25)
 
 ### Bug Fixes
